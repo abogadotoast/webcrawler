@@ -39,24 +39,20 @@ namespace WebCrawlerUnitTests.Utilities
         }
 
         [TestMethod]
-        public void JoinStringsWithAPlus_WithEmptyList_ReturnsEmptyString()
+        public void JoinStringsWithAPlus_WithEmptyList_ThrowsArgumentException()
         {
             // Arrange
             var strings = new List<string>();
-            var expected = "";
 
-            // Act
-            var result = StringUtilities.JoinStringsWithAPlus(strings);
-
-            // Assert
-            Assert.AreEqual(expected, result);
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() => StringUtilities.JoinStringsWithAPlus(strings));
         }
 
         [TestMethod]
         public void JoinStringsWithAPlus_WithNullList_ThrowsArgumentNullException()
         {
             // Act & Assert
-            Assert.ThrowsException<System.ArgumentNullException>(() => StringUtilities.JoinStringsWithAPlus(null));
+            Assert.ThrowsException<ArgumentNullException>(() => StringUtilities.JoinStringsWithAPlus(null));
         }
     }
 }
