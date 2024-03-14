@@ -10,6 +10,7 @@ namespace WebCrawlerUnitTests.Utilities
     [TestClass]
     public class StringUtilitiesTests
     {
+        // JoinStringsWithAPlus
         [TestMethod]
         public void JoinStringsWithAPlus_WithMultipleStrings_ReturnsCorrectResult()
         {
