@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using WebCrawler.Services;
 
 namespace WebCrawler.Services
 {
     public class CrawlerService
     {
         private readonly HttpClient _httpClient;
-        public CrawlerService(IHttpClientFactory httpClientFactory)
+        private readonly IHtmlParser _htmlParser;
+        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser)
         {
             _httpClient = httpClientFactory.CreateClient();
+            _htmlParser = htmlParser;
         }
         /// <summary>
         /// This takes a list of keywords and a string URL.
@@ -18,7 +21,7 @@ namespace WebCrawler.Services
         /// <param name="URL"></param>
         /// <returns></returns>
         
-        private async Task<List<string>> ReturnIndexOfGoogleSearchResults(List<string> keywords, string URL, string numberOfSearchResultsToCheck)
+        public async Task<List<string>> ReturnIndexOfGoogleSearchResults(List<string> keywords, string URL, string numberOfSearchResultsToCheck)
         {
             try
             {
@@ -34,6 +37,7 @@ namespace WebCrawler.Services
                 _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
 
                 string html = await _httpClient.GetStringAsync(URL);
+                var m = _htmlParser.LoadHtml(html).FindWord("Infotrak").InH3Tags();
 
                 // A simple regex to match 'www.infotrack.com' within anchor tags. This is a very basic approach
                 // and might need adjustments based on actual HTML structure and URL formats.

@@ -1,4 +1,6 @@
 
+using WebCrawler.Services;
+
 namespace WebCrawler
 {
     public class Program
@@ -15,6 +17,7 @@ namespace WebCrawler
             builder.Services.AddSwaggerGen();
             // Register the IHttpClientFactory
             builder.Services.AddHttpClient();
+            builder.Services.AddScoped<IHtmlParser, HtmlParser>();
 
             var app = builder.Build();
 
