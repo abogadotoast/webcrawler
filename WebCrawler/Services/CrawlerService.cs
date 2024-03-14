@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace WebCrawler.Services
 {
@@ -16,14 +17,17 @@ namespace WebCrawler.Services
         /// <param name="keywords"></param>
         /// <param name="URL"></param>
         /// <returns></returns>
-        /*
-        private async Task<List<string>> ReturnIndexOfGoogleSearchResults(List<string> keywords, string URL)
+        
+        private async Task<List<string>> ReturnIndexOfGoogleSearchResults(List<string> keywords, string URL, string numberOfSearchResultsToCheck)
         {
             try
             {
-                List<string> matchingIndexes = new List<string>();
-                keywords = ["efiling", "integration"];
-                URL = "https://www.google.com/search?num=100&q=" efiling+integration";
+              //  numberOfSearchResultsToCheck = "100";
+              //  keywords = ["efiling", "integration"];
+                
+                List<string> matchingIndexes = [];
+                
+                
 
                 // Google might block requests that do not seem to originate from a browser,
                 // so setting a user-agent that mimics a browser can help.
@@ -55,6 +59,8 @@ namespace WebCrawler.Services
             }
             return null;
         }
-        */
+
+
+
     }
 }

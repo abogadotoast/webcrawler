@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using WebCrawler.Utilities;
 
-namespace WebCrawlerUnitTests.Utilities
+namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
 {
     [TestClass]
-    public class StringUtilitiesTests
+    public class JoinStringsWithAPlusTests
     {
         // JoinStringsWithAPlus
         [TestMethod]
