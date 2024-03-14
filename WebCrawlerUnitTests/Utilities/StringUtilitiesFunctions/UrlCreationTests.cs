@@ -123,7 +123,7 @@ namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
             // Arrange
             var keywords = new List<string> { "hello world", "test/me" };
             int numberOfSearchResults = 5;
-            var expectedUrl = "https://www.google.com/search?num=5&q=hello+world+test%2Fme";
+            var expectedUrl = "https://www.google.com/search?num=5&q=hello+world+test%2fme";
 
             // Act
             var resultUrl = StringUtilities.CreateLookupURL(numberOfSearchResults, keywords);

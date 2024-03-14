@@ -10,50 +10,53 @@ namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
     [TestClass]
     public class JoinStringsWithAPlusTests
     {
-        // JoinStringsWithAPlus
         [TestMethod]
-        public void JoinStringsWithAPlus_WithMultipleStrings_ReturnsCorrectResult()
+        public void JoinStringsWithAPlus_WithNormalStrings_ReturnsCorrectlyJoinedString()
         {
             // Arrange
-            var strings = new List<string> { "Hello", "world", "this", "is", "a", "test" };
-            var expected = "Hello + world + this + is + a + test";
+            var keywords = new List<string> { "hello", "world" };
+            var expected = "hello+world";
 
             // Act
-            var result = StringUtilities.JoinStringsWithAPlus(strings);
+            var result = StringUtilities.JoinStringsWithAPlus(keywords);
 
             // Assert
             Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void JoinStringsWithAPlus_WithSingleString_ReturnsSingleString()
+        public void JoinStringsWithAPlus_WithUrlUnsafeStrings_ReturnsCorrectlyEncodedAndJoinedString()
         {
             // Arrange
-            var strings = new List<string> { "Hello" };
-            var expected = "Hello";
+            var keywords = new List<string> { "hello world", "test/me" };
+            var expected = "hello+world+test%2fme"; // Note how spaces and slashes are encoded
 
             // Act
-            var result = StringUtilities.JoinStringsWithAPlus(strings);
+            var result = StringUtilities.JoinStringsWithAPlus(keywords);
 
             // Assert
             Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void JoinStringsWithAPlus_WithEmptyList_ThrowsArgumentException()
+        public void JoinStringsWithAPlus_WithEmptyStrings_ReturnsCorrectlyJoinedString()
         {
             // Arrange
-            var strings = new List<string>();
+            var keywords = new List<string> { "", "" };
+            var expected = "+";
 
-            // Act & Assert
-            Assert.ThrowsException<ArgumentException>(() => StringUtilities.JoinStringsWithAPlus(strings));
+            // Act
+            var result = StringUtilities.JoinStringsWithAPlus(keywords);
+
+            // Assert
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void JoinStringsWithAPlus_WithNullList_ThrowsArgumentNullException()
+        public void JoinStringsWithAPlus_WithNullKeywords_ThrowsArgumentNullException()
         {
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => StringUtilities.JoinStringsWithAPlus(null));
+            Assert.ThrowsException<System.ArgumentNullException>(() => StringUtilities.JoinStringsWithAPlus(null));
         }
     }
 }
