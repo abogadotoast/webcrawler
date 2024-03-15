@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using WebCrawler.Services;
+using WebCrawler.Tree;
+using WebCrawler.Utilities;
 
 namespace WebCrawler.Services
 {
@@ -37,25 +39,17 @@ namespace WebCrawler.Services
                 _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
 
                 string html = await _httpClient.GetStringAsync(URL);
-                var m = _htmlParser.LoadHtml(html).FindWord("Infotrak").InH3Tags();
 
-                // A simple regex to match 'www.infotrack.com' within anchor tags. This is a very basic approach
-                // and might need adjustments based on actual HTML structure and URL formats.
-                var matches = Regex.Matches(html, @"href=""(https?://www\.infotrack\.com[^""]*)""", RegexOptions.IgnoreCase);
-
-                int index = 1; // Starting index at 1 for human-readable indexing
-                foreach (Match match in matches)
-                {
-                    Console.WriteLine($"Instance found at index {index}: {match.Groups[1].Value}");
-                    index++;
-                    matchingIndexes.Add(index.ToString());
-                }
-
-                if (index == 1)
-                {
-                    Console.WriteLine("No instances of 'www.infotrack.com' were found.");
-                }
-                return matchingIndexes;
+                var parser = new SimpleHtmlParser();
+                Console.WriteLine("================");
+                Console.WriteLine(html);
+                var rootNode = parser.ParseHtml(html);
+                var treeSearch = new HtmlTreeSearch();
+                //query:efiling%20integration
+                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com");
+                //    var results = DivSearcher.GetSearchResultsPositionAsync(html, "infotrack.com");
+                //   var hi = results;
+                return [""];
             }
             catch (Exception ex)
             {
