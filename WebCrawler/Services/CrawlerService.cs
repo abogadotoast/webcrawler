@@ -3,49 +3,60 @@ using System.Text.RegularExpressions;
 using WebCrawler.Services;
 using WebCrawler.Tree;
 using WebCrawler.Utilities;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace WebCrawler.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
+
     public class CrawlerService
     {
         private readonly HttpClient _httpClient;
         private readonly IHtmlParser _htmlParser;
-        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser)
+        private readonly ILogger<CrawlerService> _logger;
+
+
+        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser, ILogger<CrawlerService> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
             _htmlParser = htmlParser;
+            _logger = logger;
         }
-        public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string URL)
+
+        public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, IList<string> keywords)
         {
-            List<string> matchingIndexes = [];
+            const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
+            List<string> matchingIndexes = new List<string>();
+
             try
             {
-                // Google might block requests that do not seem to originate from a browser,
-                // so setting a user-agent that mimics a browser can help.
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
-
-                string html = await _httpClient.GetStringAsync(URL);
-
-                var rootNode = _htmlParser.ParseHtml(html);
+                string appendedLookupURL = StringUtilities.AppendUrlAndQToWebsiteBeingSearched(lookupURL);
+                string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
+                var html = await _httpClient.GetStringAsync(googleUrlWithKeywords);
+                var rootNode = _htmlParser.ParseHtmlStringIntoTree(html);
                 var treeSearch = new HtmlTreeSearch();
+                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, appendedLookupURL);
 
-                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, @"/url?q=https://www.infotrack.com");
-                // Iterate through each of the nodes to get the indexes.
-                foreach( var node in matchingNodes)
-                {
-                    matchingIndexes.Add(node.RunningIndex.ToString());
-                }
-                return matchingIndexes;
+                matchingIndexes.AddRange(matchingNodes.Select(node => node.RunningIndex.ToString()));
+            }
+            catch (HttpRequestException httpEx)
+            {
+                _logger.LogError(httpEx, "An HTTP request error occurred while trying to fetch search results.");
+                // Optionally, rethrow to let the caller handle it, or handle it here
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                _logger.LogError(ex, "An unexpected error occurred while trying to process search results.");
+                // Depending on the application's needs, you might want to rethrow, return a default value, or handle the error in some other way.
             }
-            // If no matches, return an empty array.
+
             return matchingIndexes;
         }
-
-
-
     }
 }

@@ -10,7 +10,7 @@ namespace WebCrawler.Utilities
         /// </summary>
         /// <param name="items">A list of strings, e.g. ["efiling", "integration"]</param>
         /// <returns>A combined string list for a Google query. For example: "efiling+integration"</returns>
-        public static string JoinStringsWithAPlus(List<string> keywords)
+        public static string JoinStringsWithAPlus(IList<string> keywords)
         {
             return string.Join("+", keywords.Select(HttpUtility.UrlEncode));
         }
@@ -20,7 +20,7 @@ namespace WebCrawler.Utilities
         /// <param name="numberOfSearchResultsToCheck">A number, such as 100. This will ask Google to return 100 records.</param>
         /// <param name="keywords">A list of strings, such as ['efiling', 'integration']. This will be appended at the end of the Google query.</param>
         /// <returns>A URL that queries Google for a number of keywords up to a result list.</returns>
-        public static string CreateLookupURL(int numberOfSearchResultsToCheck, List<string> keywords)
+        public static string CreateLookupURL(int numberOfSearchResultsToCheck, IList<string> keywords)
         {
             try
             {
@@ -63,6 +63,10 @@ namespace WebCrawler.Utilities
                 Console.WriteLine("An unexpected error occurred: " + ex.Message);
                 throw;
             }
+        }
+        public static string AppendUrlAndQToWebsiteBeingSearched(string websiteToLookup)
+        {
+            return @"/url?q=" + websiteToLookup;
         }
     }
 }

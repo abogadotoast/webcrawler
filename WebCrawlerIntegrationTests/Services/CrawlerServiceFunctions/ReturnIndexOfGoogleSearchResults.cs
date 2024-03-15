@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using WebCrawler.Services;
@@ -15,48 +17,49 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
     [TestClass]
     public class GoogleSearchResultIndexerTests
     {
-        private readonly IHttpClientFactory? _httpClientFactory;
-        private readonly IHtmlParser? _htmlParser;
-
-        public GoogleSearchResultIndexerTests()
-        {
-            ServiceCollection services = new ServiceCollection();
-            services.AddHttpClient();
-            ServiceProvider serviceProvider = services.BuildServiceProvider();
-            _httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
-            _htmlParser = new HtmlParser();
-        }
+        private static IServiceProvider _serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
+            var services = new ServiceCollection();
+            services.AddHttpClient();
+            services.AddSingleton<IHtmlParser, HtmlParser>(); // Assuming HtmlParser is your custom class implementing IHtmlParser
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole();
+                builder.AddDebug();
+            });
 
+            _serviceProvider = services.BuildServiceProvider();
         }
 
         [TestMethod]
-        public async Task ReturnIndexOfGoogleSearchResults_UsesRealHttpClient()
+        public async Task ReturnIndexOfGoogleSearchResults_IntegrationTest()
         {
-            // These shouldn't be null.
-            Assert.IsNotNull(_httpClientFactory);
-            Assert.IsNotNull(_htmlParser);
+            Assert.IsNotNull(_serviceProvider);
+            // Arrange
+            var logger = _serviceProvider.GetRequiredService<ILogger<CrawlerService>>();
+            var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
+            var htmlParser = _serviceProvider.GetRequiredService<IHtmlParser>();
+            var crawlerService = new CrawlerService(httpClientFactory, htmlParser, logger);
 
-            var yourClassInstance = new CrawlerService(_httpClientFactory, _htmlParser);
+            var keywords = new List<string> { "efiling", "integration" };
+            var lookupURL = "https://www.infotrack.com";
+            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, keywords);
 
-            // Replace "https://example.com" with the URL of your live or local testing environment
-            // Ensure this environment is predictable and available for integration testing
-            var url = StringUtilities.CreateLookupURL(100, ["efiling", "integration"]);
-            var result = await yourClassInstance.ReturnIndexOfGoogleSearchResults(url);
+            // Asserts to verify behavior without relying on fixed positions due to potential changes in Google's search results
+            Assert.IsNotNull(result, "The result should not be null.");
+            Assert.IsTrue(result.Count > 0, "Expected at least one result.");
+        }
 
-            // Assert based on expected behavior of the live service
-            // This will vary depending on what the service is expected to return
-            // For example, if you know the service should return at least one match, you could assert the list is not empty
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count > 0);
-            // We should only have two values. In my case, the algorithm made it 1 and 2.
-            // This test is designed to be brittle - so if this doesn't work, please contact gugraves@gmail.com / Ryan Battistone
-            // This test may fail if Google's Search Algorithm changes.
-            Assert.IsTrue(result.First() == "1");
-            Assert.IsTrue(result.Last() == "2");
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            if (_serviceProvider is IDisposable)
+            {
+                ((IDisposable)_serviceProvider).Dispose();
+            }
         }
     }
 }

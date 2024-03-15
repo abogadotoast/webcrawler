@@ -18,6 +18,12 @@ namespace WebCrawler
             // Register the IHttpClientFactory
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<IHtmlParser, HtmlParser>();
+            builder.Services.AddScoped<CrawlerService>();
+
+            // Configure logging with default providers
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole(); // Add console logging
+            builder.Logging.AddDebug();   // Add debug logging
 
             var app = builder.Build();
 

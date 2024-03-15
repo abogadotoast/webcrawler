@@ -5,51 +5,46 @@ namespace WebCrawler.Tree
 {
     public class HtmlTreeSearch
     {
-        private int runningIndex = 0; // Global running index
-        // Function to search the HTML tree
+        // Function to search the HTML tree for <a> tags with specific "href" attributes and no content
         public List<IHtmlNode> FindDivsWithDataAsyncContext(IHtmlNode rootNode, string contains)
         {
             var matchingNodes = new List<IHtmlNode>();
-            SearchTree(rootNode, matchingNodes, contains);
+            int runningIndex = 0; // Reset running index for each search
+            SearchTree(rootNode, matchingNodes, contains, ref runningIndex);
             return matchingNodes;
         }
 
         // Recursive function to traverse the tree
-        private void SearchTree(IHtmlNode node, List<IHtmlNode> matchingNodes, string contains, string path = "")
+        private void SearchTree(IHtmlNode node, IList<IHtmlNode> matchingNodes, string contains, ref int runningIndex, string path = "", int childIndex = 0)
         {
-            // Construct the path for the current node
-            string currentPath = string.IsNullOrEmpty(path) ? "" : path + ".";
-            // We get the nodes that have an <a href="/url?q={URL_HERE}>.
-            // This is what I determined as the "secret key" of each of the 100 listings.
-            // The ones we are interested in do not have Content - only the Google provided links appear to have Content.
+            if (node == null) return; // Early return for null nodes
 
-            if( node.TagName.Equals("a", StringComparison.CurrentCultureIgnoreCase)
-                && node.Attributes["href"].Contains(@"url?q=")
-                & string.IsNullOrEmpty(node.Content)) // Only Google puts Content in this tree.)
+            // Update path for current node
+            string currentPath = path + (string.IsNullOrEmpty(path) ? "" : ".") + childIndex;
+
+            // Check if the node matches the search criteria
+            if (IsMatchingNode(node, contains))
             {
-                // Start at 1, since we want to return a human countable index.
-                ++runningIndex;
-            }
-
-
-            if (node.TagName.Equals("a", StringComparison.CurrentCultureIgnoreCase)
-                     //@"/url?q="
-                     && node.Attributes["href"].Contains(contains)
-                     && string.IsNullOrEmpty(node.Content)) // Only Google puts Content in this tree.
-            {
-                node.Path = path; // Optional: Store the path directly in the node
-                node.RunningIndex = runningIndex;
+                node.Path = currentPath; // Store the path directly in the node
+                node.RunningIndex = ++runningIndex; // Increment and set running index
                 matchingNodes.Add(node);
             }
 
-
-            // Recursively search in child nodes, updating the path for each child
+            // Recursively search in child nodes
             for (int i = 0; i < node.Children.Count; i++)
             {
-                string childPath = currentPath + i; // Construct the child's path
-                SearchTree(node.Children[i], matchingNodes, contains, childPath);
+                SearchTree(node.Children[i], matchingNodes, contains, ref runningIndex, currentPath, i);
             }
         }
 
+        // Check if the node matches the search criteria
+        private bool IsMatchingNode(IHtmlNode node, string contains)
+        {
+            return node.TagName.Equals("a", StringComparison.CurrentCultureIgnoreCase) &&
+                   node.Attributes.TryGetValue("href", out var href) &&
+                   href.Contains(contains) &&
+                   string.IsNullOrEmpty(node.Content); // Only Google puts Content in this tree
+        }
     }
+
 }

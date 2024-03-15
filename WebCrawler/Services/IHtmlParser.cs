@@ -5,7 +5,7 @@
 
     public interface IHtmlParser
     {
-        IHtmlNode ParseHtml(string html);
+        IHtmlNode ParseHtmlStringIntoTree(string html);
     }
 
 }

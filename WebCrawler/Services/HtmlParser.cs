@@ -7,7 +7,7 @@ namespace WebCrawler.Services
 {
     public class HtmlParser : IHtmlParser
     {
-        public IHtmlNode ParseHtml(string html)
+        public IHtmlNode ParseHtmlStringIntoTree(string html)
         {
             var rootNode = new HtmlNode("root");
             var currentParent = rootNode;
