@@ -4,6 +4,7 @@
     {
         public string TagName { get; set; }
         public string Content { get; set; }
+        public string Path { get; set; }
         public Dictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>();
         public List<HtmlNode> Children { get; set; } = new List<HtmlNode>();
 

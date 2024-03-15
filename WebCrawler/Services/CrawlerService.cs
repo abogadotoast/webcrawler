@@ -41,15 +41,23 @@ namespace WebCrawler.Services
                 string html = await _httpClient.GetStringAsync(URL);
 
                 var parser = new SimpleHtmlParser();
-                Console.WriteLine("================");
-                Console.WriteLine(html);
                 var rootNode = parser.ParseHtml(html);
                 var treeSearch = new HtmlTreeSearch();
                 //query:efiling%20integration
-                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com");
-                //    var results = DivSearcher.GetSearchResultsPositionAsync(html, "infotrack.com");
-                //   var hi = results;
-                return [""];
+                var allNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com", @"/url?q=");
+                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com", @"/url?q=https://www.infotrack.com");
+
+                // The matching nodes have a path in all nodes as well.
+                // Find the index of that path.
+                // Indexes should be unique.
+                foreach( var node in matchingNodes)
+                {
+                    var currentPath = node.Path;
+                    var matchingIndex = allNodes.FindIndex(a => a.Path == currentPath);
+                    var plusOneOnMatchingIndex = (matchingIndex + 1).ToString();
+                    matchingIndexes.Add(plusOneOnMatchingIndex);
+                }
+                return matchingIndexes;
             }
             catch (Exception ex)
             {
