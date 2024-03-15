@@ -36,19 +36,27 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         [TestMethod]
         public async Task ReturnIndexOfGoogleSearchResults_UsesRealHttpClient()
         {
-            // Assuming YourClass is constructed with IHttpClientFactory and it's designed to hit a testable endpoint
+            // These shouldn't be null.
+            Assert.IsNotNull(_httpClientFactory);
+            Assert.IsNotNull(_htmlParser);
+
             var yourClassInstance = new CrawlerService(_httpClientFactory, _htmlParser);
 
             // Replace "https://example.com" with the URL of your live or local testing environment
             // Ensure this environment is predictable and available for integration testing
             var url = StringUtilities.CreateLookupURL(100, ["efiling", "integration"]);
-            var result = await yourClassInstance.ReturnIndexOfGoogleSearchResults(new List<string> { "efiling", "integration" }, url, "100");
+            var result = await yourClassInstance.ReturnIndexOfGoogleSearchResults(url);
 
             // Assert based on expected behavior of the live service
             // This will vary depending on what the service is expected to return
             // For example, if you know the service should return at least one match, you could assert the list is not empty
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count > 0);
+            // We should only have two values. In my case, the algorithm made it 1 and 2.
+            // This test is designed to be brittle - so if this doesn't work, please contact gugraves@gmail.com / Ryan Battistone
+            // This test may fail if Google's Search Algorithm changes.
+            Assert.IsTrue(result.First() == "1");
+            Assert.IsTrue(result.Last() == "2");
         }
     }
 }
