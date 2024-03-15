@@ -44,18 +44,12 @@ namespace WebCrawler.Services
                 var rootNode = parser.ParseHtml(html);
                 var treeSearch = new HtmlTreeSearch();
                 //query:efiling%20integration
-                var allNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com", @"/url?q=");
+            //    var allNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com", @"/url?q=");
                 var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, "https://www.infotrack.com", @"/url?q=https://www.infotrack.com");
-
-                // The matching nodes have a path in all nodes as well.
-                // Find the index of that path.
-                // Indexes should be unique.
+                // Iterate through each of the nodes to get the indexes.
                 foreach( var node in matchingNodes)
                 {
-                    var currentPath = node.Path;
-                    var matchingIndex = allNodes.FindIndex(a => a.Path == currentPath);
-                    var plusOneOnMatchingIndex = (matchingIndex + 1).ToString();
-                    matchingIndexes.Add(plusOneOnMatchingIndex);
+                    matchingIndexes.Add(node.RunningIndex.ToString());
                 }
                 return matchingIndexes;
             }
