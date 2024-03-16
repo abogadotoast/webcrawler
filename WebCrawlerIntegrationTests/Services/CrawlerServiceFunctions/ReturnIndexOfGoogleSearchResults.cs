@@ -23,7 +23,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         private static IServiceProvider _serviceProvider;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit()
         {
             var services = new ServiceCollection();
             services.AddHttpClient();
@@ -35,6 +35,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             });
             services.AddScoped<CrawlerService>();
             services.AddScoped<HtmlTreeSearch>();
+            services.AddScoped<IFileOperations, FileOperations>(); 
 
             _serviceProvider = services.BuildServiceProvider();
         }
@@ -94,15 +95,17 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         [TestMethod]
         public async Task ALTERNATIVE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_Internet()
         {
+            // Arrange
+            var fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
+
             Assert.IsNotNull(_serviceProvider);
             // Arrange
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
             var keywords = new List<string> { "infotrack"};
             var lookupURL = "www.infotrack.com";
             // Act
-            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, true);
             var path2 = @"C:\Users\gugra\source\repos\WebCrawlerProj\WebCrawler\html\latestHtmlFile2.html";
-            await crawlerService.PrintHtmlToFile(googleHtml, path2);
+            var googleHtml = await fileOperations.LoadFromFile(path2);
             var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // The checks are a little bit less serious with this one - we just check if the response exists, since the file one already checks to see if the parsing is done correctly.
             Assert.IsNotNull(result, "The result should not be null.");

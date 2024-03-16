@@ -1,6 +1,7 @@
 
 using WebCrawler.Services;
 using WebCrawler.Tree;
+using WebCrawler.Utilities;
 
 namespace WebCrawler
 {
@@ -21,6 +22,7 @@ namespace WebCrawler
             builder.Services.AddScoped<IHtmlParser, HtmlParser>();
             builder.Services.AddScoped<CrawlerService>();
             builder.Services.AddScoped<HtmlTreeSearch>();
+            builder.Services.AddScoped<IFileOperations, FileOperations>();
 
             // Configure logging with default providers
             builder.Logging.ClearProviders();

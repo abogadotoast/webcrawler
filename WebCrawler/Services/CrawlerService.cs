@@ -21,37 +21,23 @@ namespace WebCrawler.Services
         private readonly IHtmlParser _htmlParser;
         private readonly ILogger<CrawlerService> _logger;
         private readonly HtmlTreeSearch _htmlTreeSearch;
+        private readonly IFileOperations _fileOperations;
 
 
-        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser, ILogger<CrawlerService> logger, HtmlTreeSearch htmlTreeSearch)
+        public CrawlerService(IHttpClientFactory httpClientFactory,
+            IHtmlParser htmlParser, 
+            ILogger<CrawlerService> logger, 
+            HtmlTreeSearch htmlTreeSearch,
+            IFileOperations fileOperations)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0");
             _htmlParser = htmlParser;
             _logger = logger;
             _htmlTreeSearch = htmlTreeSearch;
+            _fileOperations = fileOperations;
         }
-        public async Task PrintHtmlToFile(string text, string path)
-        {
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    await sw.WriteAsync(text);
-                }
-            }
-        }
-        public async Task<string> LoadHtmlFromFile(string path)
-        {
-            if (path.Length > 0)
-            {
-                string readText = await File.ReadAllTextAsync(path);
-                return readText;
-            }
-            return string.Empty;
 
-        }
         public async Task<string> CreateHTMLFileForParsing(IList<string> keywords, bool isWebEnabled)
         {
             const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
@@ -62,7 +48,7 @@ namespace WebCrawler.Services
             string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 
             string path = Path.Combine(projectDirectory, @"Services\CrawlerServiceFunctions\html\", "latestHtmlFile.html");
-            string html = await LoadHtmlFromFile(path);
+            string html = await _fileOperations.LoadFromFile(path);
             if (html == null || isWebEnabled)
             {
                 // For testing purposes, we're going to load the same file from text.
