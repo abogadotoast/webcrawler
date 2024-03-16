@@ -31,9 +31,8 @@ namespace WebCrawler.Services
             _logger = logger;
             _htmlTreeSearch = htmlTreeSearch;
         }
-        public async Task PrintHtmlToFile(string text)
+        public async Task PrintHtmlToFile(string text, string path)
         {
-            string path = @"C:\Users\gugra\source\repos\WebCrawlerProj\WebCrawler\html\latestHtmlFile.html";
             if (!File.Exists(path))
             {
                 // Create a file to write to.
@@ -43,34 +42,45 @@ namespace WebCrawler.Services
                 }
             }
         }
-        public async Task<string> LoadHtmlFromFile()
+        public async Task<string> LoadHtmlFromFile(string path)
         {
-            string path = @"C:\Users\gugra\source\repos\WebCrawlerProj\WebCrawler\html\latestHtmlFile.html";
-            string readText = await File.ReadAllTextAsync(path);
-            return readText;
+            if (path.Length > 0)
+            {
+                string readText = await File.ReadAllTextAsync(path);
+                return readText;
+            }
+            return string.Empty;
+
         }
-        public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, IList<string> keywords)
+        public async Task<string> CreateHTMLFileForParsing(IList<string> keywords, bool isWebEnabled)
         {
             const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
-            List<string> matchingIndexes = new List<string>();
+            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
+            // This will get the current WORKING directory (i.e. \bin\Debug)
+            string workingDirectory = Environment.CurrentDirectory;
+            // This will get the current PROJECT directory
+            string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 
+            string path = Path.Combine(projectDirectory, @"Services\CrawlerServiceFunctions\html\", "latestHtmlFile.html");
+            string html = await LoadHtmlFromFile(path);
+            if (html == null || isWebEnabled)
+            {
+                // For testing purposes, we're going to load the same file from text.
+                // Google is annoying and changes their page if it's obvious we're scraping.
+                html = await _httpClient.GetStringAsync(googleUrlWithKeywords);
+            }
+            return html;
+        }
+        public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
+        {
+
+            List<string> matchingIndexes = new List<string>();
             try
             {
-               // string appendedLookupURL = StringUtilities.AppendUrlAndQToWebsiteBeingSearched(lookupURL);
-                string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
-                string html = await LoadHtmlFromFile();
-                if(html == null)
-                {
-                    // For testing purposes, we're going to load the same file from text.
-                    // Google is annoying and changes their page if it's obvious we're scraping.
-                    html = await _httpClient.GetStringAsync(googleUrlWithKeywords);
-                    await PrintHtmlToFile(html);
-                }
-                var rootNode = _htmlParser.ParseHtmlStringIntoTree(html);
+                var rootNode = _htmlParser.ParseHtmlStringIntoTree(htmlFromGoogle);
                 var matches = _htmlTreeSearch.FindDivsWithDataAsyncContext(rootNode, lookupURL);
-               // var matchingNodes = _htmlTreeSearch.FindDivsWithDataAsyncContext(rootNode, lookupURL);
-
-                //  matchingIndexes.AddRange(matchingNodes.Select(node => node.RunningIndex.ToString()));
+                matchingIndexes.AddRange(matches.Select(node => node.RunningIndex.ToString()));
+                return matchingIndexes;
             }
             catch (HttpRequestException httpEx)
             {

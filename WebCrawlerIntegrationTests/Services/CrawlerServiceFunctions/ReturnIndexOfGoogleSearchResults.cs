@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -39,101 +40,73 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         }
 
         [TestMethod]
-        public async Task ReturnIndexOfGoogleSearchResults_IntegrationTest()
+        public async Task BASE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_File()
         {
             Assert.IsNotNull(_serviceProvider);
             // Arrange
-            var logger = _serviceProvider.GetRequiredService<ILogger<CrawlerService>>();
-            var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
-            var htmlParser = _serviceProvider.GetRequiredService<IHtmlParser>();
-            var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();// new CrawlerService(httpClientFactory, htmlParser, logger);
-
+            var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
             var keywords = new List<string> { "efiling", "integration" };
             var lookupURL = "www.infotrack.com";
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, keywords);
-
-            // Asserts to verify behavior without relying on fixed positions due to potential changes in Google's search results
+            // Act
+            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, false);
+            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            // Asserts to verify behavior is exactly the same as the file.
+            // The file is a prerecorded copy of the Google site on a local machine.
+            Assert.IsTrue(result[0] == "1");
+            Assert.IsTrue(result[1] == "2");
             Assert.IsNotNull(result, "The result should not be null.");
             Assert.IsTrue(result.Count > 0, "Expected at least one result.");
         }
-        /// <summary>
-        /// There are two methods of getting a result on the list.
-        /// The first is by a node search.
-        /// The second is by doing a .Where() clause.
-        /// The .Where() clause is considerably more expensive, but easy to check.
-        /// We test to make sure that our behaviors are identical.
-        /// </summary>
-        /// <returns></returns>
         [TestMethod]
-        public async Task AssertIntegrationsOfDifferentKeywordsAndSitesWillWork()
+        public async Task ALTERNATIVE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_File()
         {
-            var keywords = new List<string> { "efiling", "integration" };
-            var keywords2 = new List<string> { "Infotrack" };
-            var lookupURL = "https://www.infotrack.com";
-            await INEFFICENT_ReturnIndexOfGoogleSearchResults(keywords, lookupURL);
-            await INEFFICENT_ReturnIndexOfGoogleSearchResults(keywords2, lookupURL);
-        }
-
-        /// <summary>
-        /// This method is for testing. We check to ensure our Node indexing is correct using a second method: build the 100 first, then pick their indexes from where the urls match.
-        /// </summary>
-        /// <param name="lookupURL"></param>
-        /// <param name="keywords"></param>
-        /// <returns></returns>
-        private async Task INEFFICENT_ReturnIndexOfGoogleSearchResults(List<string> keywords, string lookupURL)
-        {
-
-
-            const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
-
+            Assert.IsNotNull(_serviceProvider);
             // Arrange
-            var logger = _serviceProvider.GetRequiredService<ILogger<CrawlerService>>();
-            var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
-            var htmlParser = _serviceProvider.GetRequiredService<IHtmlParser>();
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
-            var treeSearch = _serviceProvider.GetRequiredService<HtmlTreeSearch>();
-
-            List<string> smallerResultSet = new List<string>();
-            List<string> allResultSet = new List<string>();
-            List<string> finalResultSet = new List<string>();
-            List<int> matchingIndexes = new List<int>();
-            List<int> smallIndexes = new List<int>();
-            List<int> bigIndexes = new List<int>();
-
-            var httpClient = httpClientFactory.CreateClient();
-
+            var keywords = new List<string> { "infotrack" };
+            var lookupURL = "www.infotrack.com";
             // Act
-            // var smallMatchingNodesList = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, keywords);
-
-            // Other act.
-
-            // For a targeted search, e.g. url?q="efiling+integration"
-            string appendedLookupURL = StringUtilities.AppendUrlAndQToWebsiteBeingSearched(lookupURL);
-            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
-            var html = await httpClient.GetStringAsync(googleUrlWithKeywords);
-            var rootNode = htmlParser.ParseHtmlStringIntoTree(html);
-            var smallMatchingNodesList = treeSearch.FindDivsWithDataAsyncContext(rootNode, appendedLookupURL);
-            smallerResultSet.AddRange(smallMatchingNodesList.Select(node => node.RunningIndex.ToString()));
-
-            // Build the tree for one hundred results under the parameter of something like url?q=
-            string allUrls = StringUtilities.AppendUrlAndQToWebsiteBeingSearched(string.Empty);
-            var bigMatchingNodesList = treeSearch.FindDivsWithDataAsyncContext(rootNode, allUrls);
-            var indexesFound = new List<int>();
-            // Search each result of the small tree and see what it is in the big tree.
-            foreach (var smallNode in smallMatchingNodesList)
-            {
-                // Paths should be the same no matter which document.
-                var indexFound = bigMatchingNodesList.FindIndex(a => a.Path == smallNode.Path);
-                indexesFound.Add(indexFound + 1);
-            }
-            // Now we compare tpo using the actual indexing function on the small nodes.
-            // Do the indexes match between the path finding vs index finding methods?
-            foreach (var smallStr in smallerResultSet)
-            {
-                var indexOfSmallStr = Convert.ToInt32(smallStr);
-                var indexFound = indexesFound.FindIndex(a => a == indexOfSmallStr);
-                Assert.IsNotNull(indexFound, "Every index should exist 1:1 in both sets.");
-            }
+            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, false);
+            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            // Asserts to verify behavior is exactly the same as the file.
+            // The file is a prerecorded copy of the Google site on a local machine.
+            Assert.IsTrue(result[0] == "1");
+            Assert.IsTrue(result[1] == "3");
+            Assert.IsTrue(result[1] == "8");
+            Assert.IsNotNull(result, "The result should not be null.");
+            Assert.IsTrue(result.Count > 0, "Expected at least one result.");
+        }
+        [TestMethod]
+        public async Task BASE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_Internet()
+        {
+            Assert.IsNotNull(_serviceProvider);
+            // Arrange
+            var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
+            var keywords = new List<string> { "efiling", "integration" };
+            var lookupURL = "www.infotrack.com";
+            // Act
+            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, true);
+            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            // The checks are a little bit less serious with this one - we just check if the response exists, since the file one already checks to see if the parsing is done correctly.
+            Assert.IsNotNull(result, "The result should not be null.");
+            Assert.IsTrue(result.Count > 0, "Expected at least one result.");
+        }
+        [TestMethod]
+        public async Task ALTERNATIVE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_Internet()
+        {
+            Assert.IsNotNull(_serviceProvider);
+            // Arrange
+            var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
+            var keywords = new List<string> { "infotrack"};
+            var lookupURL = "www.infotrack.com";
+            // Act
+            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, true);
+            var path2 = @"C:\Users\gugra\source\repos\WebCrawlerProj\WebCrawler\html\latestHtmlFile2.html";
+            await crawlerService.PrintHtmlToFile(googleHtml, path2);
+            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            // The checks are a little bit less serious with this one - we just check if the response exists, since the file one already checks to see if the parsing is done correctly.
+            Assert.IsNotNull(result, "The result should not be null.");
+            Assert.IsTrue(result.Count > 0, "Expected at least one result.");
         }
 
         [ClassCleanup]
