@@ -8,6 +8,7 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
     public class FileOperationsTests
     {
         private static IServiceProvider? _serviceProvider;
+        private IFileOperations? _fileOperations;
 
         [ClassInitialize]
         public static void ClassInit()
@@ -27,17 +28,17 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
         [TestInitialize]
         public void Initialize()
         {
-            // Set up a test directory
             if (!Directory.Exists(_testDirectory))
             {
                 Directory.CreateDirectory(_testDirectory);
             }
+            Assert.IsNotNull(_serviceProvider);
+            _fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            // Clean up the test directory
             if (Directory.Exists(_testDirectory))
             {
                 Directory.Delete(_testDirectory, true);
@@ -45,49 +46,53 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
         }
 
         [TestMethod]
-        public async Task LoadFromFile_ReturnsContent_WhenFileExists()
+        public async Task SaveToFile_CreatesAndWritesToFile_WhenProvidedWithContent()
         {
             // Arrange
-            string expectedContent = "Hello, World!";
-            string filePath = Path.Combine(_testDirectory, "testfile.txt");
-            await File.WriteAllTextAsync(filePath, expectedContent);
-            var fileOperations = new FileOperations();
+            string expectedContent = "Test SaveToFile Content";
+            string fileName = "TestSaveToFile.txt";
+            string filePath = Path.Combine(_testDirectory, fileName);
 
             // Act
-            string actualContent = await fileOperations.LoadFromFile(filePath);
+            Assert.IsNotNull(_fileOperations);
+            await _fileOperations.SaveToFile(expectedContent, filePath);
 
             // Assert
-            Assert.AreEqual(expectedContent, actualContent);
+            Assert.IsTrue(File.Exists(filePath), "File should exist after SaveToFile operation.");
+            string actualContent = await File.ReadAllTextAsync(filePath);
+            Assert.AreEqual(expectedContent, actualContent, "File content should match expected content.");
+        }
+
+        [TestMethod]
+        public async Task LoadFromFile_ReadsContentCorrectly_WhenFileExists()
+        {
+            // Arrange
+            string expectedContent = "Test LoadFromFile Content";
+            string fileName = "TestLoadFromFile.txt";
+            string filePath = Path.Combine(_testDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, expectedContent); // Directly using File IO for setup here
+
+            // Act
+            Assert.IsNotNull(_fileOperations);
+            string actualContent = await _fileOperations.LoadFromFile(filePath);
+
+            // Assert
+            Assert.AreEqual(expectedContent, actualContent, "Content read should match the content written.");
         }
 
         [TestMethod]
         public async Task LoadFromFile_ReturnsEmptyString_WhenFileDoesNotExist()
         {
             // Arrange
-            string filePath = Path.Combine(_testDirectory, "nonexistentfile.txt");
-            var fileOperations = new FileOperations();
+            string fileName = "NonExistentFile.txt";
+            string filePath = Path.Combine(_testDirectory, fileName);
 
             // Act
-            string actualContent = await fileOperations.LoadFromFile(filePath);
+            Assert.IsNotNull(_fileOperations);
+            string content = await _fileOperations.LoadFromFile(filePath);
 
             // Assert
-            Assert.AreEqual(string.Empty, actualContent);
-        }
-
-        [TestMethod]
-        public async Task SaveToFile_CreatesFile_WithCorrectContent()
-        {
-            // Arrange
-            string expectedContent = "Test Content";
-            string filePath = Path.Combine(_testDirectory, "saveTestFile.txt");
-            var fileOperations = new FileOperations();
-
-            // Act
-            await fileOperations.SaveToFile(expectedContent, filePath);
-            string actualContent = await File.ReadAllTextAsync(filePath);
-
-            // Assert
-            Assert.AreEqual(expectedContent, actualContent);
+            Assert.AreEqual(string.Empty, content, "Content should be an empty string for non-existent files.");
         }
     }
 }
