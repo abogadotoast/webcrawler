@@ -17,6 +17,7 @@ namespace WebCrawler.Tree
         // Recursive function to traverse the tree
         private void SearchTree(IHtmlNode node, IList<IHtmlNode> matchingNodes, string contains, ref int runningIndex, string path = "", int childIndex = 0)
         {
+            const string URL_PARAMETER_FROM_GOOGLE_LIST = @"url?q=";
             if (node == null) return; // Early return for null nodes
 
             // Update path for current node
@@ -26,8 +27,11 @@ namespace WebCrawler.Tree
             if (IsMatchingNode(node, contains))
             {
                 node.Path = currentPath; // Store the path directly in the node
-                node.RunningIndex = ++runningIndex; // Increment and set running index
+                node.RunningIndex = ++runningIndex; // Increment and set running index - match the path
                 matchingNodes.Add(node);
+            }
+            else if (IsMatchingNode(node, URL_PARAMETER_FROM_GOOGLE_LIST)){
+                ++runningIndex; // START at 1
             }
 
             // Recursively search in child nodes
@@ -45,6 +49,7 @@ namespace WebCrawler.Tree
                    href.Contains(contains) &&
                    string.IsNullOrEmpty(node.Content); // Only Google puts Content in this tree
         }
+        // We still want to check for the nodes that don't match the running count - otherwise we won't be able to increment.
     }
 
 }
