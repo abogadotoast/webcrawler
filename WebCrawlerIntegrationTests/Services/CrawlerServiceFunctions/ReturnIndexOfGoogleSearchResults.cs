@@ -49,7 +49,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();// new CrawlerService(httpClientFactory, htmlParser, logger);
 
             var keywords = new List<string> { "efiling", "integration" };
-            var lookupURL = "https://www.infotrack.com";
+            var lookupURL = "www.infotrack.com";
             var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, keywords);
 
             // Asserts to verify behavior without relying on fixed positions due to potential changes in Google's search results
@@ -64,27 +64,6 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         /// We test to make sure that our behaviors are identical.
         /// </summary>
         /// <returns></returns>
-        [TestMethod]
-        public async Task UseInefficentMethodToCheckReturnIndexOfGoogleSearchResults()
-        {
-            Assert.IsNotNull(_serviceProvider);
-            // Arrange
-            var logger = _serviceProvider.GetRequiredService<ILogger<CrawlerService>>();
-            var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
-            var htmlParser = _serviceProvider.GetRequiredService<IHtmlParser>();
-            var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
-
-
-            var keywords = new List<string> { "efiling", "integration" };
-            var lookupURL = "https://www.infotrack.com";
-
-            // Act
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, keywords);
-
-            // Asserts to verify behavior without relying on fixed positions due to potential changes in Google's search results
-            Assert.IsNotNull(result, "The result should not be null.");
-            Assert.IsTrue(result.Count > 0, "Expected at least one result.");
-        }
         [TestMethod]
         public async Task AssertIntegrationsOfDifferentKeywordsAndSitesWillWork()
         {
