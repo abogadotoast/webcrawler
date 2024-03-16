@@ -19,14 +19,16 @@ namespace WebCrawler.Services
         private readonly HttpClient _httpClient;
         private readonly IHtmlParser _htmlParser;
         private readonly ILogger<CrawlerService> _logger;
+        private readonly HtmlTreeSearch _htmlTreeSearch;
 
 
-        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser, ILogger<CrawlerService> logger)
+        public CrawlerService(IHttpClientFactory httpClientFactory, IHtmlParser htmlParser, ILogger<CrawlerService> logger, HtmlTreeSearch htmlTreeSearch)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
             _htmlParser = htmlParser;
             _logger = logger;
+            _htmlTreeSearch = htmlTreeSearch;
         }
 
         public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, IList<string> keywords)
@@ -40,8 +42,7 @@ namespace WebCrawler.Services
                 string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
                 var html = await _httpClient.GetStringAsync(googleUrlWithKeywords);
                 var rootNode = _htmlParser.ParseHtmlStringIntoTree(html);
-                var treeSearch = new HtmlTreeSearch();
-                var matchingNodes = treeSearch.FindDivsWithDataAsyncContext(rootNode, appendedLookupURL);
+                var matchingNodes = _htmlTreeSearch.FindDivsWithDataAsyncContext(rootNode, appendedLookupURL);
 
                 matchingIndexes.AddRange(matchingNodes.Select(node => node.RunningIndex.ToString()));
             }
