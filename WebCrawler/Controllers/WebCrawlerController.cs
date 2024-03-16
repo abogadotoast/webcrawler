@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebCrawler.Services;
 using WebCrawler.Utilities;
@@ -25,8 +26,8 @@ namespace WebCrawler.Controllers
             // Replace this with your actual logic for web crawling and finding URLs based on keywords.
             if (keywords != null && keywords.Count > 0 && !string.IsNullOrWhiteSpace(urlToFindOnList))
             {
-                 string googleHtml = await _crawlerService.CreateHTMLFileForParsing(keywords, true);
-                 foundUrls = await _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
+                string googleHtml = await _crawlerService.CreateHTMLFileFromWeb(keywords);
+                foundUrls = await _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
 
             }
 

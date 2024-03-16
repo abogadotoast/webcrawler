@@ -71,6 +71,13 @@ namespace WebCrawler.Services
             }
             return html;
         }
+        public async Task<string> CreateHTMLFileFromWeb(IList<string> keywords)
+        {
+            const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
+            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
+            string googleHtml = await _httpClient.GetStringAsync(googleUrlWithKeywords);
+            return googleHtml;
+        }
         public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
         {
 
