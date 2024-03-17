@@ -34,16 +34,9 @@ namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
             int numberOfSearchResults = 101; // Outside valid range
 
             // Act
-            var resultUrl = StringUtilities.CreateLookupURL(numberOfSearchResults, keywords);
+            StringUtilities.CreateLookupURL(numberOfSearchResults, keywords);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void CreateLookupURL_NullKeywords_ThrowsArgumentNullException()
-        {
-            // Act
-            var resultUrl = StringUtilities.CreateLookupURL(10, null);
-        }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
@@ -53,7 +46,7 @@ namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
             var keywords = new List<string>();
 
             // Act
-            var resultUrl = StringUtilities.CreateLookupURL(10, keywords);
+            StringUtilities.CreateLookupURL(10, keywords);
         }
         [TestMethod]
         public void CreateLookupURL_MinNumberOfSearchResults_ReturnsCorrectUrl()

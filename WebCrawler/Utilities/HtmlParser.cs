@@ -14,10 +14,9 @@ namespace WebCrawler.Utilities
             var currentParent = rootNode;
             var stack = new Stack<HtmlNode>();
 
-            var matches = RegexUtilities.CreateHtmlTagRegex().Matches(html);
-           // MatchCollection matches = regex.Matches(html);
+            MatchCollection matches = RegexUtilities.CreateHtmlTagRegex().Matches(html);
 
-            foreach (Match match in matches)
+            foreach (Match match in matches.Cast<Match>())
             {
                 // Skip DOCTYPE and comments
                 if (match.Value.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) 
@@ -26,18 +25,18 @@ namespace WebCrawler.Utilities
                     continue; // Skip this iteration if it's a DOCTYPE declaration or comment
                 }
 
-                if (match.Value.StartsWith("<") && !match.Value.StartsWith("</"))
+                if (match.Value.StartsWith('<') && !match.Value.StartsWith("</"))
                 {
                     // Opening tag or self-closing tag
                     string tagWithAttributes = match.Value.Trim('<', '>');
-                    string tagName = tagWithAttributes.Split(new[] { ' ' }, 2)[0];
+                    string tagName = tagWithAttributes.Split([' '], 2)[0];
                     var newNode = new HtmlNode(tagName);
 
                     // Extract attributes
-                    var attributesString = tagWithAttributes.Substring(tagName.Length).Trim();
-                    var attributeMatches = RegexUtilities.HTMLAttributeMatcher().Matches(attributesString);
+                    var attributesString = tagWithAttributes[tagName.Length..].Trim();
+                    MatchCollection attributeMatches = RegexUtilities.HTMLAttributeMatcher().Matches(attributesString);
 
-                    foreach (Match attrMatch in attributeMatches)
+                    foreach (Match attrMatch in attributeMatches.Cast<Match>())
                     {
                         if (attrMatch.Groups.Count == 3)
                         {

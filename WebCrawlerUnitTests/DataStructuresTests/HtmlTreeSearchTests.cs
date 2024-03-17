@@ -21,11 +21,11 @@ namespace WebCrawlerUnitTests.DataStructuresTests
         public void FindDivsWithDataAsyncContext_ReturnsMatchingNodes()
         {
             // Arrange
-            var rootNode = new FakeHtmlNode("root", "", "", 0, new List<IHtmlNode>
-        {
-            new FakeHtmlNode("a", "", "", 0, new List<IHtmlNode>(), new Dictionary<string, string> {{"href", "testUrl"}}),
-            new FakeHtmlNode("a", "", "", 0, new List<IHtmlNode> { new FakeHtmlNode("h3") }, new Dictionary<string, string> {{"href", "testUrl"}})
-        });
+            var rootNode = new FakeHtmlNode("root", "", "", 0,
+        [
+            new FakeHtmlNode("a", "", "", 0, [], new Dictionary<string, string> {{"href", "testUrl"}}),
+            new FakeHtmlNode("a", "", "", 0, [new FakeHtmlNode("h3")], new Dictionary<string, string> {{"href", "testUrl"}})
+        ]);
 
             Assert.IsNotNull(_htmlTreeSearch);
             // Act
@@ -36,24 +36,14 @@ namespace WebCrawlerUnitTests.DataStructuresTests
             Assert.IsTrue(result[0].Attributes["href"].Contains("testUrl"));
         }
 
-        class FakeHtmlNode : IHtmlNode
+        class FakeHtmlNode(string tagName = "", string content = "", string path = "", int runningIndex = 0, IList<IHtmlNode>? children = null, IDictionary<string, string>? attributes = null) : IHtmlNode
         {
-            public string TagName { get; set; }
-            public string Content { get; set; }
-            public string Path { get; set; }
-            public IDictionary<string, string> Attributes { get; set; }
-            public IList<IHtmlNode> Children { get; set; }
-            public int RunningIndex { get; set; }
-
-            public FakeHtmlNode(string tagName = "", string content = "", string path = "", int runningIndex = 0, IList<IHtmlNode>? children = null, IDictionary<string, string>? attributes = null)
-            {
-                TagName = tagName;
-                Content = content;
-                Path = path;
-                RunningIndex = runningIndex;
-                Children = children ?? new List<IHtmlNode>();
-                Attributes = attributes ?? new Dictionary<string, string>();
-            }
+            public string TagName { get; set; } = tagName;
+            public string Content { get; set; } = content;
+            public string Path { get; set; } = path;
+            public IDictionary<string, string> Attributes { get; set; } = attributes ?? new Dictionary<string, string>();
+            public IList<IHtmlNode> Children { get; set; } = children ?? [];
+            public int RunningIndex { get; set; } = runningIndex;
 
             public void AddChild(IHtmlNode child)
             {

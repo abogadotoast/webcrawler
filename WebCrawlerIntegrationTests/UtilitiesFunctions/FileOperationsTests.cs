@@ -12,7 +12,7 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
     public class FileOperationsTests
     {
         private static string? _testDirectory;
-        private IFileOperations? _fileOperations;
+        private FileOperations? _fileOperations;
         private Mock<ILogger<FileOperations>>? _mockLogger;
 
         [ClassInitialize]

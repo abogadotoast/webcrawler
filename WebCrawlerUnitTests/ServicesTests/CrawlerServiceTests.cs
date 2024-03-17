@@ -60,7 +60,7 @@ namespace WebCrawlerUnitTests.ServicesTests
         public async Task GetHtmlContentForKeywordsAsync_ThrowsArgumentException_WhenKeywordsAreEmpty()
         {
             Assert.IsNotNull(_crawlerService);
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _crawlerService.GetHtmlContentForKeywordsAsync(new List<string>()));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _crawlerService.GetHtmlContentForKeywordsAsync([]));
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace WebCrawlerUnitTests.ServicesTests
                 .Returns(new HtmlNode()); // Adjust this based on your HtmlNode implementation
 
             _mockHtmlTreeSearch.Setup(s => s.FindDivsWithDataAsyncContext(It.IsAny<IHtmlNode>(), It.IsAny<string>()))
-                .Returns(new List<IHtmlNode> { new HtmlNode { RunningIndex = 1 } }); // Adjust as needed
+                .Returns([new HtmlNode { RunningIndex = 1 }]); // Adjust as needed
 
             // Act
             var result = _crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, htmlFromGoogle).ToList();
@@ -105,14 +105,9 @@ namespace WebCrawlerUnitTests.ServicesTests
             CollectionAssert.AreEqual(expectedIndexes, result);
         }
     }
-    public class FakeHttpMessageHandler : DelegatingHandler
+    public class FakeHttpMessageHandler(string responseContent) : DelegatingHandler
     {
-        private readonly string _responseContent;
-
-        public FakeHttpMessageHandler(string responseContent)
-        {
-            _responseContent = responseContent;
-        }
+        private readonly string _responseContent = responseContent;
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

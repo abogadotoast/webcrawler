@@ -44,11 +44,12 @@ namespace WebCrawler.Utilities
                     {
                         await sw.WriteAsync(text);
                     }
-                    _logger.LogInformation($"A new file was created and text was written to {path}.");
+                    _logger.LogInformation("A new file was created and text was written to {Path}.", path);
                 }
                 else
                 {
-                    _logger.LogInformation($"The file {path} already exists. No new file was created.");
+                    _logger.LogInformation("The file {Path} already exists. No new file was created.", path);
+
                 }
             }
             catch (Exception ex)

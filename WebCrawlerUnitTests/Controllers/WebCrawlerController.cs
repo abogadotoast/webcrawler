@@ -16,9 +16,9 @@ namespace WebCrawlerUnitTests.Controllers
         {
             // Arrange
             var mockCrawlerService = new Mock<ICrawlerService>();
-            IList<string> keywords = new List<string> { "example" };
+            IList<string> keywords = ["example"];
             string urlToFindOnList = "http://example.com";
-            IList<string> expectedUrls = new List<string> { urlToFindOnList };
+            IList<string> expectedUrls = [urlToFindOnList];
 
             mockCrawlerService.Setup(s => s.GetHtmlContentForKeywordsAsync(It.IsAny<IList<string>>()))
                 .ReturnsAsync("dummyHtmlContent");
