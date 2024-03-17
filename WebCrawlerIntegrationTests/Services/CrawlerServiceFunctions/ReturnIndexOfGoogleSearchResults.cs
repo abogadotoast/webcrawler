@@ -21,6 +21,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
     public class GoogleSearchResultIndexerTests
     {
         private static IServiceProvider _serviceProvider;
+        private static string _testDataDirectory;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -38,27 +39,30 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             services.AddScoped<IFileOperations, FileOperations>(); 
 
             _serviceProvider = services.BuildServiceProvider();
+
+            _testDataDirectory = Path.Combine(context.TestRunDirectory, "TestData", "CrawlerServiceFunctions", "html");
         }
 
         [TestMethod]
-        public async Task BASE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_File()
+        public async Task ReturnIndexOfGoogleSearchResults_LoadsFromHtmlFileAndFindsCorrectIndexes()
         {
-            Assert.IsNotNull(_serviceProvider);
+            Assert.IsNotNull(_serviceProvider, "Service provider must be initialized.");
+
             // Arrange
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
             var fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
-            var keywords = new List<string> { "efiling", "integration" };
             var lookupURL = "www.infotrack.com";
+            var path = Path.Combine(Environment.CurrentDirectory, @"Services\CrawlerServiceFunctions\html\latestHtmlFile.html");
+
             // Act
-            var path = @"C:\Users\gugra\source\repos\WebCrawlerProjOld\WebCrawlerIntegrationTests\Services\CrawlerServiceFunctions\html\latestHtmlFile.html";
             string googleHtml = await fileOperations.LoadFromFile(path);
             var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
-            // Asserts to verify behavior is exactly the same as the file.
-            // The file is a prerecorded copy of the Google site on a local machine.
-            Assert.IsTrue(result[0] == "1");
-            Assert.IsTrue(result[1] == "2");
+
+            // Assert
             Assert.IsNotNull(result, "The result should not be null.");
             Assert.IsTrue(result.Count > 0, "Expected at least one result.");
+            Assert.AreEqual("1", result[0], "First result index should be 1.");
+            Assert.AreEqual("2", result[1], "Second result index should be 2.");
         }
         [TestMethod]
         public async Task ALTERNATIVE_CASE_ReturnIndexOfGoogleSearchResults_IntegrationTest_From_File()
@@ -67,10 +71,9 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             // Arrange
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
             var fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
-            var keywords = new List<string> { "infotrack" };
             var lookupURL = "www.infotrack.com";
             // Act
-            var path = @"C:\Users\gugra\source\repos\WebCrawlerProjOld\WebCrawlerIntegrationTests\Services\CrawlerServiceFunctions\html\latestHtmlFile2.html";
+            var path = Path.Combine(Environment.CurrentDirectory, @"Services\CrawlerServiceFunctions\html\latestHtmlFile2.html");
             string googleHtml = await fileOperations.LoadFromFile(path);
             var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // Asserts to verify behavior is exactly the same as the file.

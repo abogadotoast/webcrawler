@@ -25,4 +25,13 @@
     <ProjectReference Include="..\WebCrawler\WebCrawler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Services\CrawlerServiceFunctions\html\latestHtmlFile.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\CrawlerServiceFunctions\html\latestHtmlFile2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
