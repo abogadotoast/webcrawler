@@ -65,7 +65,7 @@ Google doesn't make it easy! I have a new found appreciation for web scrapers no
 	- I use interface types whenever possible.
 - Dependency Inversion Principle
 	- 	 I use inversion of control wherever possible, even in test suites.
-	- 	Dependency injection is used EVERYWHERE.
+	- 	Dependency injection is used everywhere, including in the test suites.
 
 ### What are some things the next version of this WebCrawler could have?
 
