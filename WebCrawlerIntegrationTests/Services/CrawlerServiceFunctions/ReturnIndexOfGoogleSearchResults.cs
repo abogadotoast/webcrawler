@@ -77,7 +77,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             // The file is a prerecorded copy of the Google site on a local machine.
             Assert.IsTrue(result[0] == "1");
             Assert.IsTrue(result[1] == "3");
-            Assert.IsTrue(result[1] == "8");
+            Assert.IsTrue(result[2] == "8");
             Assert.IsNotNull(result, "The result should not be null.");
             Assert.IsTrue(result.Count > 0, "Expected at least one result.");
         }
