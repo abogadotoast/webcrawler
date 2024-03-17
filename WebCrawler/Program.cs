@@ -21,7 +21,7 @@ namespace WebCrawler
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<IHtmlParser, HtmlParser>();
             builder.Services.AddScoped<ICrawlerService, CrawlerService>();
-            builder.Services.AddScoped<HtmlTreeSearch>();
+            builder.Services.AddScoped<IHtmlTreeSearch, HtmlTreeSearch>();
             builder.Services.AddScoped<IFileOperations, FileOperations>();
 
             // Configure logging with default providers

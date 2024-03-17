@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WebCrawler.Utilities;
 
-namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
+namespace WebCrawlerIntegrationTests.UtilitiesFunctions
 {
     [TestClass]
     public class FileOperationsTests

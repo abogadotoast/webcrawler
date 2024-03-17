@@ -16,7 +16,7 @@
             RunningIndex = runningIndex;
         }
 
-        public void AddChild(HtmlNode child)
+        public void AddChild(IHtmlNode child)
         {
 
             if(child != null)
