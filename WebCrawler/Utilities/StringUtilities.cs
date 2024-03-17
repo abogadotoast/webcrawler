@@ -71,9 +71,5 @@ namespace WebCrawler.Utilities
                 throw;
             }
         }
-        public static string AppendUrlAndQToWebsiteBeingSearched(string websiteToLookup)
-        {
-            return @"/url?q=" + websiteToLookup;
-        }
     }
 }

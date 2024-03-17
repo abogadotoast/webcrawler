@@ -17,32 +17,42 @@ namespace WebCrawler.Controllers
         private readonly ICrawlerService _crawlerService = crawlerService;
 
         /// <summary>
-        /// It will return a set of indexes in which the url was found on a Google search.
+        /// It will return a set of indexes in which the url was found on a Google search, as a comma-separated string.
         /// </summary>
         /// <param name="keywords">Example: ["efiling", "integration"]</param>
         /// <param name="urlToFindOnList">Example: "www.infotrack.com"</param>
         /// <returns>
-        /// A list of positions where the URL was found on Google. Starts at 1. 
-        /// For example, with those search terms above, I get ["1", "2"]. 
-        /// If a site couldn't be found, it will return ["0"].
-        /// Note that Google will change the order with its own algorithm - your results may differ from mine.</returns>
+        /// A string of positions where the URL was found on Google, starting at 1, 
+        /// or "0" if the site couldn't be found. Note that Google's results may vary.
+        /// </returns>
         [HttpGet]
-        public async Task<ActionResult<IList<string>>> GetAsync([FromQuery] IList<string> keywords, [FromQuery] string urlToFindOnList)
+        public async Task<ActionResult<string>> GetAsync([FromQuery] IList<string> keywords, [FromQuery] string urlToFindOnList)
         {
-            IList<string> foundUrls = [];
-
-            if (keywords != null && keywords.Count > 0 && !string.IsNullOrWhiteSpace(urlToFindOnList))
+            try
             {
+                if (keywords == null || keywords.Count == 0 || string.IsNullOrWhiteSpace(urlToFindOnList))
+                {
+                    return BadRequest("Keywords and URL to find must be provided.");
+                }
+
                 string googleHtml = await _crawlerService.GetHtmlContentForKeywordsAsync(keywords);
-                foundUrls = _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
+                IList<string> indicesOfFoundUrls = _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
 
+                string foundUrls = "0";
+                if (indicesOfFoundUrls.Count > 0)
+                {
+                    // Convert all indices to string and concatenate them, separated by commas
+                    foundUrls = string.Join(", ", indicesOfFoundUrls.Select(index => index).ToArray());
+                }
+
+                return Ok(foundUrls);
             }
-            if(foundUrls.Count == 0)
+            catch (Exception ex)
             {
-                foundUrls = ["0"];
+                // Log the exception details as needed
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
             }
-
-            return Ok(foundUrls);
         }
+
     }
 }
