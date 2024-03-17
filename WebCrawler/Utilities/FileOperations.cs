@@ -2,10 +2,19 @@
 
 namespace WebCrawler.Utilities
 {
+    /// <summary>
+    /// This class handles all of the file operations.
+    /// </summary>
+    /// <param name="logger">A logger to record errors.</param>
     public class FileOperations(ILogger<FileOperations> logger) : IFileOperations
     {
         private readonly ILogger<FileOperations> _logger = logger;
 
+        /// <summary>
+        /// This loads a file and converts it to text.
+        /// </summary>
+        /// <param name="path">The path where that file can be found.</param>
+        /// <returns>The text of that file.</returns>
         public async Task<string> LoadFromFile(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -26,7 +35,12 @@ namespace WebCrawler.Utilities
             }
         }
 
-
+        /// <summary>
+        /// This saves a file with the desired path.
+        /// </summary>
+        /// <param name="text">This is the text you want to save.</param>
+        /// <param name="path">This is the path in which you want to save it.</param>
+        /// <returns></returns>
         public async Task SaveToFile(string text, string path)
         {
             if (string.IsNullOrWhiteSpace(path))

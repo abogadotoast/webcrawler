@@ -16,7 +16,7 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
         private Mock<ILogger<FileOperations>>? _mockLogger;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             _testDirectory = Path.Combine(Path.GetTempPath(), "FileOperationsTests");
         }

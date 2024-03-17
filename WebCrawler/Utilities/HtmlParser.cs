@@ -6,8 +6,16 @@ using WebCrawler.DataStructures;
 
 namespace WebCrawler.Utilities
 {
+    /// <summary>
+    /// This class deals with functions that parse HTML.
+    /// </summary>
     public class HtmlParser : IHtmlParser
     {
+        /// <summary>
+        /// This function converts HTML into a tree of IHtmlNode.
+        /// </summary>
+        /// <param name="html">A string of HTML.</param>
+        /// <returns>A tree of IHtmlNode. </returns>
         public IHtmlNode ParseHtmlStringIntoTree(string html)
         {
             var rootNode = new HtmlNode("root");
