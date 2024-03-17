@@ -47,7 +47,7 @@ namespace WebCrawler.Controllers
 
                 return Ok(foundUrls);
             }
-            catch (Exception ex)
+            catch
             {
                 // Log the exception details as needed
                 return StatusCode(500, "An error occurred while processing your request. Please try again later.");

@@ -11,8 +11,8 @@ namespace WebCrawlerUnitTests.Controllers
     [TestClass]
     public class WebCrawlerControllerTests
     {
-        private Mock<ICrawlerService> _mockCrawlerService;
-        private WebCrawlerController _controller;
+        private Mock<ICrawlerService>? _mockCrawlerService;
+        private WebCrawlerController? _controller;
 
         [TestInitialize]
         public void SetUp()
@@ -27,10 +27,12 @@ namespace WebCrawlerUnitTests.Controllers
             // Arrange
             var keywords = new List<string> { "efiling", "integration" };
             var urlToFind = "www.infotrack.com";
+            Assert.IsNotNull(_mockCrawlerService);
+            Assert.IsNotNull(_controller);
             _mockCrawlerService.Setup(service => service.GetHtmlContentForKeywordsAsync(keywords))
                                .ReturnsAsync("mockHtmlContent");
             _mockCrawlerService.Setup(service => service.ReturnIndexOfGoogleSearchResults(urlToFind, "mockHtmlContent"))
-                               .Returns(new List<string> { "1", "2" });
+                               .Returns(["1", "2"]);
 
             // Act
             var result = await _controller.GetAsync(keywords, urlToFind);
@@ -47,12 +49,14 @@ namespace WebCrawlerUnitTests.Controllers
             // Arrange
             var keywords = new List<string> { "nonexistent" };
             var urlToFind = "www.unknown.com";
+            Assert.IsNotNull(_mockCrawlerService);
             _mockCrawlerService.Setup(service => service.GetHtmlContentForKeywordsAsync(keywords))
                                .ReturnsAsync("mockHtmlContent");
             _mockCrawlerService.Setup(service => service.ReturnIndexOfGoogleSearchResults(urlToFind, "mockHtmlContent"))
-                               .Returns(new List<string>());
+                               .Returns([]);
 
             // Act
+            Assert.IsNotNull(_controller);
             var result = await _controller.GetAsync(keywords, urlToFind);
 
             // Assert
@@ -67,7 +71,8 @@ namespace WebCrawlerUnitTests.Controllers
             // Arrange
             var keywords = new List<string>();
             var urlToFind = ""; // Empty or null to simulate missing data
-
+            Assert.IsNotNull(_mockCrawlerService);
+            Assert.IsNotNull(_controller);
             // Act
             var result = await _controller.GetAsync(keywords, urlToFind);
 
@@ -83,6 +88,8 @@ namespace WebCrawlerUnitTests.Controllers
             // Arrange
             var keywords = new List<string> { "efiling" };
             var urlToFind = "www.infotrack.com";
+            Assert.IsNotNull(_mockCrawlerService);
+            Assert.IsNotNull(_controller);
             _mockCrawlerService.Setup(service => service.GetHtmlContentForKeywordsAsync(keywords))
                                .ThrowsAsync(new System.Exception("Internal server error"));
 
