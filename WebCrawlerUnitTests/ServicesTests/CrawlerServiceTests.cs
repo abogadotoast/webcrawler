@@ -18,55 +18,104 @@ namespace WebCrawlerUnitTests.ServicesTests
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private Mock<IHtmlParser> _mockHtmlParser;
         private Mock<ILogger<CrawlerService>> _mockLogger;
-        private Mock<HtmlTreeSearch> _mockHtmlTreeSearch;
-        private HttpClient _mockHttpClient;
+        private Mock<IHtmlTreeSearch> _mockHtmlTreeSearch;
         private CrawlerService _crawlerService;
 
         [TestInitialize]
-        public void Initialize()
+        public void TestInitialize()
         {
+            // Create a fake HttpMessageHandler
+            var fakeResponseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("<html>Test HTML</html>")
+            };
             var handlerMock = new Mock<HttpMessageHandler>();
-            _mockHttpClient = new HttpClient(handlerMock.Object);
-            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockHttpClientFactory.Setup(factory => factory.CreateClient(It.IsAny<string>())).Returns(_mockHttpClient);
-
-            _mockHtmlParser = new Mock<IHtmlParser>();
-            _mockLogger = new Mock<ILogger<CrawlerService>>();
-            _mockHtmlTreeSearch = new Mock<HtmlTreeSearch>();
-
-            // Setup the HttpMessageHandler mock
             handlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>()
                 )
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent("<html></html>"),
-                });
+                .ReturnsAsync(fakeResponseMessage);
 
-            _crawlerService = new CrawlerService(_mockHttpClientFactory.Object, _mockHtmlParser.Object, _mockLogger.Object, _mockHtmlTreeSearch.Object);
+            // Use the handlerMock to create an HttpClient and setup the HttpClientFactory mock to return this client
+            var httpClient = new HttpClient(handlerMock.Object);
+            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            // Setup other dependencies
+            _mockHtmlParser = new Mock<IHtmlParser>();
+            _mockLogger = new Mock<ILogger<CrawlerService>>();
+            _mockHtmlTreeSearch = new Mock<IHtmlTreeSearch>();
+
+            // Instantiate CrawlerService with the mocks
+            _crawlerService = new CrawlerService(
+                _mockHttpClientFactory.Object,
+                _mockHtmlParser.Object,
+                _mockLogger.Object,
+                _mockHtmlTreeSearch.Object);
         }
+
+        [TestMethod]
+        public async Task GetHtmlContentForKeywordsAsync_ThrowsArgumentException_WhenKeywordsAreEmpty()
+        {
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _crawlerService.GetHtmlContentForKeywordsAsync(new List<string>()));
+        }
+
         [TestMethod]
         public async Task GetHtmlContentForKeywordsAsync_ReturnsContent_WhenKeywordsAreValid()
         {
-            var keywords = new List<string> { "example" };
+            // Arrange
+            var keywords = new List<string> { "test" };
+            var expectedHtml = "<html>Test HTML</html>";
+            _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>()))
+                .Returns(new HttpClient(new FakeHttpMessageHandler(expectedHtml)));
+
+            // Act
             var result = await _crawlerService.GetHtmlContentForKeywordsAsync(keywords);
 
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Contains("<html></html>"));
+            // Assert
+            Assert.AreEqual(expectedHtml, result);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task GetHtmlContentForKeywordsAsync_ThrowsArgumentException_WhenKeywordsAreEmpty()
+        public void ReturnIndexOfGoogleSearchResults_ReturnsCorrectIndexes()
         {
-            var keywords = new List<string>();
-            await _crawlerService.GetHtmlContentForKeywordsAsync(keywords);
+            // Arrange
+            var lookupURL = "http://example.com";
+            var htmlFromGoogle = "<html><div><a href='http://example.com'>Example</a></div></html>";
+            var expectedIndexes = new List<string> { "1" };
+
+            _mockHtmlParser.Setup(p => p.ParseHtmlStringIntoTree(It.IsAny<string>()))
+                .Returns(new HtmlNode()); // Adjust this based on your HtmlNode implementation
+
+            _mockHtmlTreeSearch.Setup(s => s.FindDivsWithDataAsyncContext(It.IsAny<IHtmlNode>(), It.IsAny<string>()))
+                .Returns(new List<IHtmlNode> { new HtmlNode { RunningIndex = 1 } }); // Adjust as needed
+
+            // Act
+            var result = _crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, htmlFromGoogle).ToList();
+
+            // Assert
+            CollectionAssert.AreEqual(expectedIndexes, result);
+        }
+    }
+    public class FakeHttpMessageHandler : DelegatingHandler
+    {
+        private readonly string _responseContent;
+
+        public FakeHttpMessageHandler(string responseContent)
+        {
+            _responseContent = responseContent;
         }
 
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(_responseContent)
+            });
+        }
     }
 
 }

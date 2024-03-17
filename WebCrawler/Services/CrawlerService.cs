@@ -15,13 +15,13 @@ namespace WebCrawler.Services
         private readonly HttpClient _httpClient;
         private readonly IHtmlParser _htmlParser;
         private readonly ILogger<CrawlerService> _logger;
-        private readonly HtmlTreeSearch _htmlTreeSearch;
+        private readonly IHtmlTreeSearch _htmlTreeSearch;
 
 
         public CrawlerService(IHttpClientFactory httpClientFactory,
             IHtmlParser htmlParser, 
             ILogger<CrawlerService> logger, 
-            HtmlTreeSearch htmlTreeSearch)
+            IHtmlTreeSearch htmlTreeSearch)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0");

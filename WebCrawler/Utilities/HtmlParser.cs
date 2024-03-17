@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 using WebCrawler.DataStructures;
 
 namespace WebCrawler.Utilities
@@ -18,6 +19,13 @@ namespace WebCrawler.Utilities
 
             foreach (Match match in matches)
             {
+                // Skip DOCTYPE and comments
+                if (match.Value.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) 
+                    || match.Value.StartsWith("<!--", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue; // Skip this iteration if it's a DOCTYPE declaration or comment
+                }
+
                 if (match.Value.StartsWith("<") && !match.Value.StartsWith("</"))
                 {
                     // Opening tag or self-closing tag

@@ -21,7 +21,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
     public class GoogleSearchResultIndexerTests
     {
         private IServiceProvider _serviceProvider;
-        private CrawlerService _crawlerService;
+        private ICrawlerService _crawlerService;
         private IFileOperations _fileOperations;
         private string _testDataDirectory;
 
@@ -30,14 +30,14 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         {
             var services = new ServiceCollection();
             services.AddHttpClient();
-            services.AddSingleton<IHtmlParser, HtmlParser>();
+            services.AddScoped<IHtmlParser, HtmlParser>();
             services.AddSingleton<ILogger<CrawlerService>, Logger<CrawlerService>>(); 
-            services.AddScoped<CrawlerService>();
-            services.AddScoped<HtmlTreeSearch>();
+            services.AddScoped<ICrawlerService, CrawlerService>();
+            services.AddScoped<IHtmlTreeSearch, HtmlTreeSearch>();
             services.AddScoped<IFileOperations, FileOperations>();
 
             _serviceProvider = services.BuildServiceProvider();
-            _crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
+            _crawlerService = _serviceProvider.GetRequiredService<ICrawlerService>();
             _fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
 
             // Setup the path dynamically based on the current execution directory
