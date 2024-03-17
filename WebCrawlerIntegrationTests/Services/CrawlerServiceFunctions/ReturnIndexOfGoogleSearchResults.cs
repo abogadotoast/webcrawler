@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using WebCrawler.Services;
-using WebCrawler.Tree;
+using WebCrawler.DataStructures;
 using WebCrawler.Utilities;
 
 namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace WebCrawler.Tree
+namespace WebCrawler.DataStructures
 {
     public class HtmlTreeSearch
     {

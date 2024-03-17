@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using WebCrawler.Tree;
+using WebCrawler.DataStructures;
 
 namespace WebCrawler.Utilities
 {

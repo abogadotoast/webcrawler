@@ -1,9 +1,5 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using WebCrawler.Tree;
+﻿using WebCrawler.DataStructures;
 using WebCrawler.Utilities;
-using static System.Net.Mime.MediaTypeNames;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace WebCrawler.Services
 {

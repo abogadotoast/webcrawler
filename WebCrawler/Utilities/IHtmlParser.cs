@@ -1,7 +1,7 @@
 ﻿namespace WebCrawler.Utilities
 {
     using System.Collections.Generic;
-    using WebCrawler.Tree;
+    using WebCrawler.DataStructures;
 
     public interface IHtmlParser
     {

@@ -1,6 +1,6 @@
 
 using WebCrawler.Services;
-using WebCrawler.Tree;
+using WebCrawler.DataStructures;
 using WebCrawler.Utilities;
 
 namespace WebCrawler

@@ -10,8 +10,8 @@ namespace WebCrawler.Controllers
     [ApiController]
     public class WebCrawlerController : ControllerBase
     {
-        CrawlerService _crawlerService;
-        public WebCrawlerController(CrawlerService crawlerService)
+        ICrawlerService _crawlerService;
+        public WebCrawlerController(ICrawlerService crawlerService)
         {
             _crawlerService = crawlerService;
         }

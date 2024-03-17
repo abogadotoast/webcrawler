@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using WebCrawler.Services;
-using WebCrawler.Tree;
+using WebCrawler.DataStructures;
 using WebCrawler.Utilities;
 
 namespace WebCrawlerUnitTests.ServicesTests
