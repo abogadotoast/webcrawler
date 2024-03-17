@@ -8,19 +8,16 @@ namespace WebCrawler.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WebCrawlerController : ControllerBase
+    public class WebCrawlerController(ICrawlerService crawlerService) : ControllerBase
     {
-        ICrawlerService _crawlerService;
-        public WebCrawlerController(ICrawlerService crawlerService)
-        {
-            _crawlerService = crawlerService;
-        }
+        private readonly ICrawlerService _crawlerService = crawlerService;
+
         // GET: api/WebCrawler
         [HttpGet]
         public async Task<ActionResult<IList<string>>> GetAsync([FromQuery] IList<string> keywords, [FromQuery] string urlToFindOnList)
         {
             // Placeholder for the actual web crawling logic to find the URL in the list based on the keywords
-            IList<string> foundUrls = new List<string>();
+            IList<string> foundUrls = [];
 
             // Example logic: add the URL to the list if a specific dummy keyword is found.
             // Replace this with your actual logic for web crawling and finding URLs based on keywords.

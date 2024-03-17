@@ -15,11 +15,11 @@ namespace WebCrawlerUnitTests.ServicesTests
     [TestClass]
     public class CrawlerServiceTests
     {
-        private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<IHtmlParser> _mockHtmlParser;
-        private Mock<ILogger<CrawlerService>> _mockLogger;
-        private Mock<IHtmlTreeSearch> _mockHtmlTreeSearch;
-        private CrawlerService _crawlerService;
+        private Mock<IHttpClientFactory>? _mockHttpClientFactory;
+        private Mock<IHtmlParser>? _mockHtmlParser;
+        private Mock<ILogger<CrawlerService>>? _mockLogger;
+        private Mock<IHtmlTreeSearch>? _mockHtmlTreeSearch;
+        private CrawlerService? _crawlerService;
 
         [TestInitialize]
         public void TestInitialize()
@@ -59,6 +59,7 @@ namespace WebCrawlerUnitTests.ServicesTests
         [TestMethod]
         public async Task GetHtmlContentForKeywordsAsync_ThrowsArgumentException_WhenKeywordsAreEmpty()
         {
+            Assert.IsNotNull(_crawlerService);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() => _crawlerService.GetHtmlContentForKeywordsAsync(new List<string>()));
         }
 
@@ -66,6 +67,8 @@ namespace WebCrawlerUnitTests.ServicesTests
         public async Task GetHtmlContentForKeywordsAsync_ReturnsContent_WhenKeywordsAreValid()
         {
             // Arrange
+            Assert.IsNotNull(_mockHttpClientFactory);
+            Assert.IsNotNull(_crawlerService);
             var keywords = new List<string> { "test" };
             var expectedHtml = "<html>Test HTML</html>";
             _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>()))
@@ -82,6 +85,9 @@ namespace WebCrawlerUnitTests.ServicesTests
         public void ReturnIndexOfGoogleSearchResults_ReturnsCorrectIndexes()
         {
             // Arrange
+            Assert.IsNotNull(_mockHtmlParser);
+            Assert.IsNotNull(_mockHtmlTreeSearch);
+            Assert.IsNotNull(_crawlerService);
             var lookupURL = "http://example.com";
             var htmlFromGoogle = "<html><div><a href='http://example.com'>Example</a></div></html>";
             var expectedIndexes = new List<string> { "1" };

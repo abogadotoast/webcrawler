@@ -36,6 +36,7 @@ namespace WebCrawlerUnitTests.Controllers
             Assert.IsNotNull(okResult);
             Assert.IsInstanceOfType(okResult.Value, typeof(IList<string>));
             var resultUrls = okResult.Value as IList<string>;
+            Assert.IsNotNull(resultUrls);
             Assert.AreEqual(expectedUrls.Count, resultUrls.Count);
             Assert.AreEqual(expectedUrls[0], resultUrls[0]);
 

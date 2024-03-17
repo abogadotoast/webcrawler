@@ -2,13 +2,10 @@
 
 namespace WebCrawler.Utilities
 {
-    public class FileOperations : IFileOperations
+    public class FileOperations(ILogger<FileOperations> logger) : IFileOperations
     {
-        ILogger<FileOperations> _logger;
-        public FileOperations(ILogger<FileOperations> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<FileOperations> _logger = logger;
+
         public async Task<string> LoadFromFile(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -24,7 +21,7 @@ namespace WebCrawler.Utilities
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while loading content from the file at {path}.");
+                _logger.LogError(ex, "An error occurred while loading content from the file at {Path}.", path);
                 return string.Empty;
             }
         }
@@ -56,7 +53,7 @@ namespace WebCrawler.Utilities
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while saving content to the file at {path}.");
+                _logger.LogError(ex, "An error occurred while saving content to the file at {Path}.", path);
             }
         }
     }

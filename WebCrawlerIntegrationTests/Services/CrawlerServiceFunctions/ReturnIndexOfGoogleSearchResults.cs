@@ -20,10 +20,10 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
     [TestClass]
     public class GoogleSearchResultIndexerTests
     {
-        private IServiceProvider _serviceProvider;
-        private ICrawlerService _crawlerService;
-        private IFileOperations _fileOperations;
-        private string _testDataDirectory;
+        private IServiceProvider? _serviceProvider;
+        private ICrawlerService? _crawlerService;
+        private IFileOperations? _fileOperations;
+        private string? _testDataDirectory;
 
         [TestInitialize]
         public void TestInit()
@@ -45,6 +45,9 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         }
         private async Task<string> LoadHtmlFromFile(string fileName)
         {
+            Assert.IsNotNull(_testDataDirectory);
+            Assert.IsNotNull(_fileOperations);
+
             var path = Path.Combine(_testDataDirectory, fileName);
             return await _fileOperations.LoadFromFile(path);
         }
@@ -53,7 +56,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         public async Task ReturnIndexOfGoogleSearchResults_LoadsFromHtmlFileAndFindsCorrectIndexes()
         {
             Assert.IsNotNull(_serviceProvider, "Service provider must be initialized.");
-
+            Assert.IsNotNull(_crawlerService);
             // Arrange
             var lookupURL = "www.infotrack.com";
             string googleHtml = await LoadHtmlFromFile("latestHtmlFile.html");
@@ -73,6 +76,8 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             // Ensure the service provider is properly initialized.
             Assert.IsNotNull(_serviceProvider, "Service provider is not initialized.");
             Assert.IsNotNull(_crawlerService, "Crawler Service is not initialized.");
+            Assert.IsNotNull(_testDataDirectory);
+            Assert.IsNotNull(_fileOperations);
 
             // Arrange
             var lookupURL = "www.infotrack.com";

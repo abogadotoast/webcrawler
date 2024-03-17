@@ -14,8 +14,8 @@ namespace WebCrawler.Utilities
             var currentParent = rootNode;
             var stack = new Stack<HtmlNode>();
 
-            var regex = new Regex(@"(</?[^>]+>)|([^<]+)");
-            var matches = regex.Matches(html);
+            var matches = RegexUtilities.CreateHtmlTagRegex().Matches(html);
+           // MatchCollection matches = regex.Matches(html);
 
             foreach (Match match in matches)
             {
@@ -35,7 +35,7 @@ namespace WebCrawler.Utilities
 
                     // Extract attributes
                     var attributesString = tagWithAttributes.Substring(tagName.Length).Trim();
-                    var attributeMatches = Regex.Matches(attributesString, @"(\w+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?");
+                    var attributeMatches = RegexUtilities.HTMLAttributeMatcher().Matches(attributesString);
 
                     foreach (Match attrMatch in attributeMatches)
                     {

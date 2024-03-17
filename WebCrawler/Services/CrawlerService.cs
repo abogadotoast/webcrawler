@@ -54,7 +54,7 @@ namespace WebCrawler.Services
         public IList<string> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
         {
 
-            List<string> matchingIndexes = new List<string>();
+            List<string> matchingIndexes = [];
             try
             {
                 var rootNode = _htmlParser.ParseHtmlStringIntoTree(htmlFromGoogle);

@@ -1,20 +1,12 @@
 ﻿namespace WebCrawler.DataStructures
 {
-    public class HtmlNode : IHtmlNode
+    public class HtmlNode(string tagName = "", string content = "", int runningIndex = 0) : IHtmlNode
     {
-        public string TagName { get; set; }
-        public string Content { get; set; }
+        public string TagName { get; set; } = tagName;
+        public string Content { get; set; } = content;
         public IDictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>();
-        public IList<IHtmlNode> Children { get; set; } = new List<IHtmlNode>();
-        public int RunningIndex { get; set; }
-
-
-        public HtmlNode(string tagName = "", string content = "", int runningIndex = 0)
-        {
-            TagName = tagName;
-            Content = content;
-            RunningIndex = runningIndex;
-        }
+        public IList<IHtmlNode> Children { get; set; } = [];
+        public int RunningIndex { get; set; } = runningIndex;
 
         public void AddChild(IHtmlNode child)
         {

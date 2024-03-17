@@ -1,18 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
 using WebCrawler.DataStructures;
-using WebCrawler.Services; // Use your actual namespace
 
 namespace WebCrawlerUnitTests.DataStructuresTests
 {
     [TestClass]
     public class HtmlTreeSearchTests
     {
-        private Mock<ILogger<HtmlTreeSearch>> _loggerMock;
-        private HtmlTreeSearch _htmlTreeSearch;
+        private Mock<ILogger<HtmlTreeSearch>>? _loggerMock;
+        private HtmlTreeSearch? _htmlTreeSearch;
 
         [TestInitialize]
         public void TestInitialize()
@@ -31,6 +27,7 @@ namespace WebCrawlerUnitTests.DataStructuresTests
             new FakeHtmlNode("a", "", "", 0, new List<IHtmlNode> { new FakeHtmlNode("h3") }, new Dictionary<string, string> {{"href", "testUrl"}})
         });
 
+            Assert.IsNotNull(_htmlTreeSearch);
             // Act
             var result = _htmlTreeSearch.FindDivsWithDataAsyncContext(rootNode, "testUrl");
 
@@ -48,7 +45,7 @@ namespace WebCrawlerUnitTests.DataStructuresTests
             public IList<IHtmlNode> Children { get; set; }
             public int RunningIndex { get; set; }
 
-            public FakeHtmlNode(string tagName = "", string content = "", string path = "", int runningIndex = 0, IList<IHtmlNode> children = null, IDictionary<string, string> attributes = null)
+            public FakeHtmlNode(string tagName = "", string content = "", string path = "", int runningIndex = 0, IList<IHtmlNode>? children = null, IDictionary<string, string>? attributes = null)
             {
                 TagName = tagName;
                 Content = content;

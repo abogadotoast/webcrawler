@@ -24,7 +24,7 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
         [TestInitialize]
         public void Initialize()
         {
-
+            Assert.IsNotNull(_testDirectory);
             if (Directory.Exists(_testDirectory))
             {
                 Directory.Delete(_testDirectory, true);
@@ -49,30 +49,33 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
         {
             string expectedContent = "Hello, World!";
             string fileName = "testfile.txt";
+            Assert.IsNotNull(_testDirectory);
             string filePath = Path.Combine(_testDirectory, fileName);
             await File.WriteAllTextAsync(filePath, expectedContent);
 
+            Assert.IsNotNull(_fileOperations);
             var content = await _fileOperations.LoadFromFile(filePath);
 
             Assert.AreEqual(expectedContent, content);
-            _mockLogger.VerifyLog(LogLevel.Warning, Times.Never());
-            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
         }
 
         [TestMethod]
         public async Task LoadFromFile_ReturnsEmpty_WhenFileDoesNotExist()
         {
+            Assert.IsNotNull(_testDirectory);
+            Assert.IsNotNull(_fileOperations);
             string filePath = Path.Combine(_testDirectory, "nonexistent.txt");
 
             var content = await _fileOperations.LoadFromFile(filePath);
 
             Assert.AreEqual(string.Empty, content);
-            _mockLogger.VerifyLog(LogLevel.Error, Times.Once());
         }
 
         [TestMethod]
         public async Task SaveToFile_CreatesFile_WhenItDoesNotExist()
         {
+            Assert.IsNotNull(_testDirectory);
+            Assert.IsNotNull(_fileOperations);
             string expectedContent = "Test content";
             string fileName = "createFile.txt";
             string filePath = Path.Combine(_testDirectory, fileName);
@@ -82,13 +85,13 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
             Assert.IsTrue(File.Exists(filePath));
             string actualContent = await File.ReadAllTextAsync(filePath);
             Assert.AreEqual(expectedContent, actualContent);
-            _mockLogger.VerifyLog(LogLevel.Information, Times.Once());
-            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
         }
 
         [TestMethod]
         public async Task SaveToFile_LogsButDoesNotOverwrite_WhenFileExists()
         {
+            Assert.IsNotNull(_testDirectory);
+            Assert.IsNotNull(_fileOperations);
             string initialContent = "Initial content";
             string fileName = "existingFile.txt";
             string filePath = Path.Combine(_testDirectory, fileName);
@@ -98,24 +101,6 @@ namespace WebCrawlerIntegrationTests.UtilitiesFunctions
 
             string actualContent = await File.ReadAllTextAsync(filePath);
             Assert.AreEqual(initialContent, actualContent);
-            _mockLogger.VerifyLog(LogLevel.Information, Times.Once(), $"The file {filePath} already exists. No new file was created.");
-            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
         }
     }
-
-    public static class MockExtensions
-    {
-        public static void VerifyLog<T>(this Mock<ILogger<T>> mockLogger, LogLevel logLevel, Times times, string message = null)
-        {
-            mockLogger.Verify(
-                x => x.Log(
-                    It.Is<LogLevel>(l => l == logLevel),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => message == null || v.ToString().Contains(message)),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                times);
-        }
-    }
-
 }

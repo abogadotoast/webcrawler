@@ -10,9 +10,16 @@ namespace WebCrawler.Utilities
         /// </summary>
         /// <param name="items">A list of strings, e.g. ["efiling", "integration"]</param>
         /// <returns>A combined string list for a Google query. For example: "efiling+integration"</returns>
-        public static string JoinStringsWithAPlus(IList<string> keywords)
+        public static string JoinStringsWithAPlus(IList<string>? keywords)
         {
-            return string.Join("+", keywords.Select(HttpUtility.UrlEncode));
+            if (keywords != null)
+            {
+                return string.Join("+", keywords.Select(HttpUtility.UrlEncode));
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
         /// <summary>
         /// This builds a lookup URL based on the desired number of parameters to return and a list of keywords to lookup from Google.

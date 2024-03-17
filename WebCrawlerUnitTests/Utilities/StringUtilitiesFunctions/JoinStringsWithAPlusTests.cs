@@ -53,10 +53,11 @@ namespace WebCrawlerUnitTests.Utilities.StringUtilitiesFunctions
         }
 
         [TestMethod]
-        public void JoinStringsWithAPlus_WithNullKeywords_ThrowsArgumentNullException()
+        public void JoinStringsWithAPlus_WithNullKeywords_ReturnsStringEmpty()
         {
             // Act & Assert
-            Assert.ThrowsException<System.ArgumentNullException>(() => StringUtilities.JoinStringsWithAPlus(null));
+            var result = StringUtilities.JoinStringsWithAPlus(null);
+            Assert.AreEqual(result, string.Empty);
         }
     }
 }

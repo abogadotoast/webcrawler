@@ -3,13 +3,10 @@ using System.IO;
 
 namespace WebCrawler.DataStructures
 {
-    public class HtmlTreeSearch : IHtmlTreeSearch
+    public class HtmlTreeSearch(ILogger<HtmlTreeSearch> logger) : IHtmlTreeSearch
     {
-        private readonly ILogger<HtmlTreeSearch> _logger;
-        public HtmlTreeSearch(ILogger<HtmlTreeSearch> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<HtmlTreeSearch> _logger = logger;
+
         public List<IHtmlNode> FindDivsWithDataAsyncContext(IHtmlNode rootNode, string contains)
         {
             var matchingNodes = new List<IHtmlNode>();
