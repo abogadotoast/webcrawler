@@ -27,7 +27,7 @@ namespace WebCrawler.Controllers
             if (keywords != null && keywords.Count > 0 && !string.IsNullOrWhiteSpace(urlToFindOnList))
             {
                 string googleHtml = await _crawlerService.CreateHTMLFileFromWeb(keywords);
-                foundUrls = await _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
+                foundUrls = _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
 
             }
 

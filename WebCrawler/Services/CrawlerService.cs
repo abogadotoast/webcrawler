@@ -21,41 +21,18 @@ namespace WebCrawler.Services
         private readonly IHtmlParser _htmlParser;
         private readonly ILogger<CrawlerService> _logger;
         private readonly HtmlTreeSearch _htmlTreeSearch;
-        private readonly IFileOperations _fileOperations;
 
 
         public CrawlerService(IHttpClientFactory httpClientFactory,
             IHtmlParser htmlParser, 
             ILogger<CrawlerService> logger, 
-            HtmlTreeSearch htmlTreeSearch,
-            IFileOperations fileOperations)
+            HtmlTreeSearch htmlTreeSearch)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0");
             _htmlParser = htmlParser;
             _logger = logger;
             _htmlTreeSearch = htmlTreeSearch;
-            _fileOperations = fileOperations;
-        }
-
-        public async Task<string> CreateHTMLFileForParsing(IList<string> keywords, bool isWebEnabled)
-        {
-            const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
-            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
-            // This will get the current WORKING directory (i.e. \bin\Debug)
-            string workingDirectory = Environment.CurrentDirectory;
-            // This will get the current PROJECT directory
-            string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-
-            string path = Path.Combine(projectDirectory, @"Services\CrawlerServiceFunctions\html\", "latestHtmlFile.html");
-            string html = await _fileOperations.LoadFromFile(path);
-            if (html == null || isWebEnabled)
-            {
-                // For testing purposes, we're going to load the same file from text.
-                // Google is annoying and changes their page if it's obvious we're scraping.
-                html = await _httpClient.GetStringAsync(googleUrlWithKeywords);
-            }
-            return html;
         }
         public async Task<string> CreateHTMLFileFromWeb(IList<string> keywords)
         {
@@ -64,7 +41,7 @@ namespace WebCrawler.Services
             string googleHtml = await _httpClient.GetStringAsync(googleUrlWithKeywords);
             return googleHtml;
         }
-        public async Task<IList<string>> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
+        public IList<string> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
         {
 
             List<string> matchingIndexes = new List<string>();

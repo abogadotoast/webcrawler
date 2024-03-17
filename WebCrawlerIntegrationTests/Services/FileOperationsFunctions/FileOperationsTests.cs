@@ -11,7 +11,7 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
         private IFileOperations? _fileOperations;
 
         [ClassInitialize]
-        public static void ClassInit()
+        public static void ClassInit(TestContext context)
         {
             var services = new ServiceCollection(); // Assuming HtmlParser is your custom class implementing IHtmlParser
             services.AddLogging(builder =>

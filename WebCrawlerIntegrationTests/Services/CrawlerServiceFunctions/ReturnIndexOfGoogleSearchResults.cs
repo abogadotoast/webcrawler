@@ -23,7 +23,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         private static IServiceProvider _serviceProvider;
 
         [ClassInitialize]
-        public static void ClassInit()
+        public static void ClassInit(TestContext context)
         {
             var services = new ServiceCollection();
             services.AddHttpClient();
@@ -46,11 +46,13 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             Assert.IsNotNull(_serviceProvider);
             // Arrange
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
+            var fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
             var keywords = new List<string> { "efiling", "integration" };
             var lookupURL = "www.infotrack.com";
             // Act
-            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, false);
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            var path = @"C:\Users\gugra\source\repos\WebCrawlerProjOld\WebCrawlerIntegrationTests\Services\CrawlerServiceFunctions\html\latestHtmlFile.html";
+            string googleHtml = await fileOperations.LoadFromFile(path);
+            var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // Asserts to verify behavior is exactly the same as the file.
             // The file is a prerecorded copy of the Google site on a local machine.
             Assert.IsTrue(result[0] == "1");
@@ -64,11 +66,13 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             Assert.IsNotNull(_serviceProvider);
             // Arrange
             var crawlerService = _serviceProvider.GetRequiredService<CrawlerService>();
+            var fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
             var keywords = new List<string> { "infotrack" };
             var lookupURL = "www.infotrack.com";
             // Act
-            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, false);
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            var path = @"C:\Users\gugra\source\repos\WebCrawlerProjOld\WebCrawlerIntegrationTests\Services\CrawlerServiceFunctions\html\latestHtmlFile2.html";
+            string googleHtml = await fileOperations.LoadFromFile(path);
+            var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // Asserts to verify behavior is exactly the same as the file.
             // The file is a prerecorded copy of the Google site on a local machine.
             Assert.IsTrue(result[0] == "1");
@@ -86,8 +90,8 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             var keywords = new List<string> { "efiling", "integration" };
             var lookupURL = "www.infotrack.com";
             // Act
-            string googleHtml = await crawlerService.CreateHTMLFileForParsing(keywords, true);
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            string googleHtml = await crawlerService.CreateHTMLFileFromWeb(keywords);
+            var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // The checks are a little bit less serious with this one - we just check if the response exists, since the file one already checks to see if the parsing is done correctly.
             Assert.IsNotNull(result, "The result should not be null.");
             Assert.IsTrue(result.Count > 0, "Expected at least one result.");
@@ -104,9 +108,8 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             var keywords = new List<string> { "infotrack"};
             var lookupURL = "www.infotrack.com";
             // Act
-            var path2 = @"C:\Users\gugra\source\repos\WebCrawlerProj\WebCrawler\html\latestHtmlFile2.html";
-            var googleHtml = await fileOperations.LoadFromFile(path2);
-            var result = await crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
+            string googleHtml = await crawlerService.CreateHTMLFileFromWeb(keywords);
+            var result = crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml);
             // The checks are a little bit less serious with this one - we just check if the response exists, since the file one already checks to see if the parsing is done correctly.
             Assert.IsNotNull(result, "The result should not be null.");
             Assert.IsTrue(result.Count > 0, "Expected at least one result.");
