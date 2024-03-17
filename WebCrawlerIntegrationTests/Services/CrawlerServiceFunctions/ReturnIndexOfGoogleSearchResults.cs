@@ -30,8 +30,8 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
         {
             var services = new ServiceCollection();
             services.AddHttpClient();
-            services.AddSingleton<IHtmlParser, HtmlParser>(); // Assuming this is your custom class
-            services.AddSingleton<ILogger<CrawlerService>, Logger<CrawlerService>>(); // Adjust based on your logging needs
+            services.AddSingleton<IHtmlParser, HtmlParser>();
+            services.AddSingleton<ILogger<CrawlerService>, Logger<CrawlerService>>(); 
             services.AddScoped<CrawlerService>();
             services.AddScoped<HtmlTreeSearch>();
             services.AddScoped<IFileOperations, FileOperations>();
@@ -105,7 +105,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             var lookupURL = "www.infotrack.com";
 
             // Act
-            string googleHtml = await _crawlerService.CreateHTMLFileFromWeb(keywords);
+            string googleHtml = await _crawlerService.GetHtmlContentForKeywordsAsync(keywords);
             var result = _crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml); // Assuming it's an async method.
 
             // Assert
@@ -127,7 +127,7 @@ namespace WebCrawlerIntegrationTests.Services.CrawlerServiceFunctions
             var lookupURL = "www.infotrack.com";
 
             // Act: Fetch the HTML content based on the specified keywords and then search for the lookupURL within that content.
-            string googleHtml = await _crawlerService.CreateHTMLFileFromWeb(keywords); // Assuming CreateHTMLFileFromWeb is an async method and should be awaited.
+            string googleHtml = await _crawlerService.GetHtmlContentForKeywordsAsync(keywords); // Assuming CreateHTMLFileFromWeb is an async method and should be awaited.
             Assert.AreNotEqual(string.Empty, googleHtml, "The file loaded should not be an empty string.");
 
             var result = _crawlerService.ReturnIndexOfGoogleSearchResults(lookupURL, googleHtml); // Assuming this method might be async. If not, remove the await keyword.

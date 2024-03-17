@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using WebCrawler.Tree;
 
-namespace WebCrawler.Services
+namespace WebCrawler.Utilities
 {
     public class HtmlParser : IHtmlParser
     {

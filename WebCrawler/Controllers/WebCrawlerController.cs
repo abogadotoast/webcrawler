@@ -26,7 +26,7 @@ namespace WebCrawler.Controllers
             // Replace this with your actual logic for web crawling and finding URLs based on keywords.
             if (keywords != null && keywords.Count > 0 && !string.IsNullOrWhiteSpace(urlToFindOnList))
             {
-                string googleHtml = await _crawlerService.CreateHTMLFileFromWeb(keywords);
+                string googleHtml = await _crawlerService.GetHtmlContentForKeywordsAsync(keywords);
                 foundUrls = _crawlerService.ReturnIndexOfGoogleSearchResults(urlToFindOnList, googleHtml);
 
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using WebCrawler.Services;
 using WebCrawler.Tree;
 using WebCrawler.Utilities;
 using static System.Net.Mime.MediaTypeNames;
@@ -15,7 +14,7 @@ namespace WebCrawler.Services
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
 
-    public class CrawlerService
+    public class CrawlerService : ICrawlerService
     {
         private readonly HttpClient _httpClient;
         private readonly IHtmlParser _htmlParser;
@@ -34,13 +33,28 @@ namespace WebCrawler.Services
             _logger = logger;
             _htmlTreeSearch = htmlTreeSearch;
         }
-        public async Task<string> CreateHTMLFileFromWeb(IList<string> keywords)
+        public async Task<string> GetHtmlContentForKeywordsAsync(IList<string> keywords)
         {
-            const int ONE_HUNDRED_RESULTS_FROM_GOOGLE = 100;
-            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ONE_HUNDRED_RESULTS_FROM_GOOGLE, keywords);
-            string googleHtml = await _httpClient.GetStringAsync(googleUrlWithKeywords);
-            return googleHtml;
+            if (keywords == null || !keywords.Any())
+            {
+                throw new ArgumentException("Keywords list cannot be null or empty.", nameof(keywords));
+            }
+
+            const int ResultsCount = 100; // Constants should have meaningful names and follow PascalCasing.
+            string googleUrlWithKeywords = StringUtilities.CreateLookupURL(ResultsCount, keywords);
+
+            try
+            {
+                string googleHtml = await _httpClient.GetStringAsync(googleUrlWithKeywords);
+                return googleHtml;
+            }
+            catch (HttpRequestException ex)
+            {
+                // Consider logging the exception details and/or rethrowing a more specific exception
+                throw new InvalidOperationException("Failed to fetch HTML content from Google.", ex);
+            }
         }
+
         public IList<string> ReturnIndexOfGoogleSearchResults(string lookupURL, string htmlFromGoogle)
         {
 

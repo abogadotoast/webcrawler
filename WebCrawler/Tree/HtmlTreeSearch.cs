@@ -43,14 +43,6 @@ namespace WebCrawler.Tree
                 }
             }
         }
-        private bool CurrentNodeContainsH3(IHtmlNode node)
-        {
-            if (node.TagName.Equals("h3", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return true; // Found an <h3> tag
-            }
-            return false;
-        }
         // Helper method to check for <h3> tag existence within an <a> tag
         private bool ContainsH3Tag(IHtmlNode node)
         {

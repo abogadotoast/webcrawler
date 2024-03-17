@@ -1,4 +1,4 @@
-﻿namespace WebCrawler.Services
+﻿namespace WebCrawler.Utilities
 {
     using System.Collections.Generic;
     using WebCrawler.Tree;

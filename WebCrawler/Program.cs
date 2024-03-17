@@ -20,7 +20,7 @@ namespace WebCrawler
             // Register the IHttpClientFactory
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<IHtmlParser, HtmlParser>();
-            builder.Services.AddScoped<CrawlerService>();
+            builder.Services.AddScoped<ICrawlerService, CrawlerService>();
             builder.Services.AddScoped<HtmlTreeSearch>();
             builder.Services.AddScoped<IFileOperations, FileOperations>();
 
