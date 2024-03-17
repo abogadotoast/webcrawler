@@ -38,6 +38,7 @@ There are two test projects.
 	 - There is both a file based integration test.
 	 - There is also a web based integration test.
 	 - The file based one is based on what I pulled down on my local machine from Google using the GET function with that user agent in Visual Studio 2022.
+  - The WebCrawlerUnitTests uses Moq and MSTest to ensure that any changes to the existing functionality are instantly noticed.
 
 ## FAQ
 ### What was your initial approach?
