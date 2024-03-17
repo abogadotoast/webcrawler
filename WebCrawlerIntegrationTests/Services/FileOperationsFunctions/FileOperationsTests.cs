@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using WebCrawler.Utilities;
 
 namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
@@ -7,33 +11,28 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
     [TestClass]
     public class FileOperationsTests
     {
-        private static IServiceProvider? _serviceProvider;
+        private static string? _testDirectory;
         private IFileOperations? _fileOperations;
+        private Mock<ILogger<FileOperations>>? _mockLogger;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            var services = new ServiceCollection(); // Assuming HtmlParser is your custom class implementing IHtmlParser
-            services.AddLogging(builder =>
-            {
-                builder.AddConsole();
-                builder.AddDebug();
-            });
-            services.AddScoped<IFileOperations, FileOperations>();
-
-            _serviceProvider = services.BuildServiceProvider();
+            _testDirectory = Path.Combine(Path.GetTempPath(), "FileOperationsTests");
         }
-        private readonly string _testDirectory = Path.Combine(Path.GetTempPath(), "FileOperationsTests");
 
         [TestInitialize]
         public void Initialize()
         {
-            if (!Directory.Exists(_testDirectory))
+
+            if (Directory.Exists(_testDirectory))
             {
-                Directory.CreateDirectory(_testDirectory);
+                Directory.Delete(_testDirectory, true);
             }
-            Assert.IsNotNull(_serviceProvider);
-            _fileOperations = _serviceProvider.GetRequiredService<IFileOperations>();
+            Directory.CreateDirectory(_testDirectory);
+
+            _mockLogger = new Mock<ILogger<FileOperations>>();
+            _fileOperations = new FileOperations(_mockLogger.Object);
         }
 
         [TestCleanup]
@@ -46,53 +45,77 @@ namespace WebCrawlerIntegrationTests.Services.FileOperationsFunctions
         }
 
         [TestMethod]
-        public async Task SaveToFile_CreatesAndWritesToFile_WhenProvidedWithContent()
+        public async Task LoadFromFile_ReturnsContent_WhenFileExists()
         {
-            // Arrange
-            string expectedContent = "Test SaveToFile Content";
-            string fileName = "TestSaveToFile.txt";
+            string expectedContent = "Hello, World!";
+            string fileName = "testfile.txt";
+            string filePath = Path.Combine(_testDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, expectedContent);
+
+            var content = await _fileOperations.LoadFromFile(filePath);
+
+            Assert.AreEqual(expectedContent, content);
+            _mockLogger.VerifyLog(LogLevel.Warning, Times.Never());
+            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
+        }
+
+        [TestMethod]
+        public async Task LoadFromFile_ReturnsEmpty_WhenFileDoesNotExist()
+        {
+            string filePath = Path.Combine(_testDirectory, "nonexistent.txt");
+
+            var content = await _fileOperations.LoadFromFile(filePath);
+
+            Assert.AreEqual(string.Empty, content);
+            _mockLogger.VerifyLog(LogLevel.Error, Times.Once());
+        }
+
+        [TestMethod]
+        public async Task SaveToFile_CreatesFile_WhenItDoesNotExist()
+        {
+            string expectedContent = "Test content";
+            string fileName = "createFile.txt";
             string filePath = Path.Combine(_testDirectory, fileName);
 
-            // Act
-            Assert.IsNotNull(_fileOperations);
             await _fileOperations.SaveToFile(expectedContent, filePath);
 
-            // Assert
-            Assert.IsTrue(File.Exists(filePath), "File should exist after SaveToFile operation.");
+            Assert.IsTrue(File.Exists(filePath));
             string actualContent = await File.ReadAllTextAsync(filePath);
-            Assert.AreEqual(expectedContent, actualContent, "File content should match expected content.");
+            Assert.AreEqual(expectedContent, actualContent);
+            _mockLogger.VerifyLog(LogLevel.Information, Times.Once());
+            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
         }
 
         [TestMethod]
-        public async Task LoadFromFile_ReadsContentCorrectly_WhenFileExists()
+        public async Task SaveToFile_LogsButDoesNotOverwrite_WhenFileExists()
         {
-            // Arrange
-            string expectedContent = "Test LoadFromFile Content";
-            string fileName = "TestLoadFromFile.txt";
+            string initialContent = "Initial content";
+            string fileName = "existingFile.txt";
             string filePath = Path.Combine(_testDirectory, fileName);
-            await File.WriteAllTextAsync(filePath, expectedContent); // Directly using File IO for setup here
+            await File.WriteAllTextAsync(filePath, initialContent);
 
-            // Act
-            Assert.IsNotNull(_fileOperations);
-            string actualContent = await _fileOperations.LoadFromFile(filePath);
+            await _fileOperations.SaveToFile("New content", filePath);
 
-            // Assert
-            Assert.AreEqual(expectedContent, actualContent, "Content read should match the content written.");
-        }
-
-        [TestMethod]
-        public async Task LoadFromFile_ReturnsEmptyString_WhenFileDoesNotExist()
-        {
-            // Arrange
-            string fileName = "NonExistentFile.txt";
-            string filePath = Path.Combine(_testDirectory, fileName);
-
-            // Act
-            Assert.IsNotNull(_fileOperations);
-            string content = await _fileOperations.LoadFromFile(filePath);
-
-            // Assert
-            Assert.AreEqual(string.Empty, content, "Content should be an empty string for non-existent files.");
+            string actualContent = await File.ReadAllTextAsync(filePath);
+            Assert.AreEqual(initialContent, actualContent);
+            _mockLogger.VerifyLog(LogLevel.Information, Times.Once(), $"The file {filePath} already exists. No new file was created.");
+            _mockLogger.VerifyLog(LogLevel.Error, Times.Never());
         }
     }
+
+    public static class MockExtensions
+    {
+        public static void VerifyLog<T>(this Mock<ILogger<T>> mockLogger, LogLevel logLevel, Times times, string message = null)
+        {
+            mockLogger.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == logLevel),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => message == null || v.ToString().Contains(message)),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                times);
+        }
+    }
+
 }
